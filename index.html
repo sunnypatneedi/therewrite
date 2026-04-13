@@ -1577,6 +1577,23 @@ input[type="range"]::-moz-range-thumb {
       <div class="trace-step-content">
         <div class="trace-step-label" style="color: var(--color-inference)">Inference &amp; Serving</div>
         <div class="trace-step-desc">A load balancer routes your request to an available GPU. The model weights (hundreds of GB) are already loaded in VRAM. Your tokens enter a batch queue. KV-cache manages context. Tokens are generated autoregressively &mdash; each one requires a full forward pass.</div>
+        <div class="energy-comparisons" style="border-left-color: var(--color-inference);">
+          <div class="energy-comparisons-title" style="color: var(--color-inference);">What does &ldquo;hundreds of GB in VRAM&rdquo; feel like?</div>
+          <div class="energy-grid">
+            <div class="energy-item">
+              <span class="energy-icon">&#127909;</span>
+              <span>Model weights of <strong>200&ndash;1,000 GB</strong> &mdash; like loading <strong>40&ndash;200 HD movies</strong> entirely into memory</span>
+            </div>
+            <div class="energy-item">
+              <span class="energy-icon">&#128257;</span>
+              <span>Each token needs a full forward pass &mdash; like <strong>re-reading an entire book</strong> to decide every next word</span>
+            </div>
+            <div class="energy-item">
+              <span class="energy-icon">&#128653;</span>
+              <span>Your request shares a GPU with dozens of others, <strong>batched like passengers on a bus route</strong></span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="trace-connector"></div>
@@ -1595,6 +1612,23 @@ input[type="range"]::-moz-range-thumb {
       <div class="trace-step-content">
         <div class="trace-step-label" style="color: var(--color-training)">Training Systems</div>
         <div class="trace-step-desc">The model's capability was shaped months ago. Pre-training on trillions of tokens, RLHF alignment, safety tuning &mdash; all baked into the weights now being used. Training decisions you never see determine what the model can do.</div>
+        <div class="energy-comparisons" style="border-left-color: var(--color-training);">
+          <div class="energy-comparisons-title" style="color: var(--color-training);">How big is &ldquo;trillions of tokens&rdquo;?</div>
+          <div class="energy-grid">
+            <div class="energy-item">
+              <span class="energy-icon">&#128218;</span>
+              <span>Trillions of tokens &#8776; reading <strong>every book in 20 Libraries of Congress</strong></span>
+            </div>
+            <div class="energy-item">
+              <span class="energy-icon">&#128176;</span>
+              <span>Training a frontier model costs <strong>$100M&ndash;$1B</strong> &mdash; comparable to producing a <strong>Marvel movie franchise</strong></span>
+            </div>
+            <div class="energy-item">
+              <span class="energy-icon">&#9201;</span>
+              <span>Training runs last <strong>weeks to months</strong> on thousands of GPUs running <strong>24/7</strong></span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="trace-connector"></div>
@@ -1604,6 +1638,23 @@ input[type="range"]::-moz-range-thumb {
       <div class="trace-step-content">
         <div class="trace-step-label" style="color: var(--color-compute)">Compute &amp; Clusters</div>
         <div class="trace-step-desc">Your inference runs on one node in a massive cluster. The cluster's scheduling software decided which GPU handles your request. Network fabric connects thousands of GPUs for training. Your one request uses a fraction of one chip.</div>
+        <div class="energy-comparisons" style="border-left-color: var(--color-compute);">
+          <div class="energy-comparisons-title" style="color: var(--color-compute);">How massive is &ldquo;massive&rdquo;?</div>
+          <div class="energy-grid">
+            <div class="energy-item">
+              <span class="energy-icon">&#127959;</span>
+              <span>A 10,000-GPU cluster costs <strong>$300&ndash;500M</strong> in hardware &mdash; more than a <strong>skyscraper</strong></span>
+            </div>
+            <div class="energy-item">
+              <span class="energy-icon">&#127965;</span>
+              <span>Physically fills a <strong>warehouse the size of a football field</strong></span>
+            </div>
+            <div class="energy-item">
+              <span class="energy-icon">&#129513;</span>
+              <span>Your single request uses <strong>&lt;0.01%</strong> of one GPU's capacity for a few seconds</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="trace-connector"></div>
@@ -1613,6 +1664,23 @@ input[type="range"]::-moz-range-thumb {
       <div class="trace-step-content">
         <div class="trace-step-label" style="color: var(--color-silicon)">Silicon &amp; Chips</div>
         <div class="trace-step-desc">The GPU running your inference was fabricated at TSMC months ago. Its architecture (H100, B200, TPU v5) determines the ops-per-second ceiling. Chip availability determined how many GPUs were allocated to serving vs. training.</div>
+        <div class="energy-comparisons" style="border-left-color: var(--color-silicon);">
+          <div class="energy-comparisons-title" style="color: var(--color-silicon);">What goes into one chip?</div>
+          <div class="energy-grid">
+            <div class="energy-item">
+              <span class="energy-icon">&#128300;</span>
+              <span>A single H100 has <strong>80 billion transistors</strong> &mdash; more than <strong>10&times; the people on Earth</strong></span>
+            </div>
+            <div class="energy-item">
+              <span class="energy-icon">&#127981;</span>
+              <span>The TSMC fab that built it cost <strong>$20B+</strong> to construct &mdash; one of the <strong>most expensive buildings ever made</strong></span>
+            </div>
+            <div class="energy-item">
+              <span class="energy-icon">&#9203;</span>
+              <span>From chip design to your inference: a <strong>2&ndash;3 year pipeline</strong> &mdash; decisions from 2023 constrain today</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="trace-connector"></div>
