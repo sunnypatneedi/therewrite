@@ -859,149 +859,6 @@ input[type="range"]::-moz-range-thumb {
   cursor: pointer;
 }
 
-
-/* Speaker quotes in panel */
-.panel-speakers {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-top: 0.5rem;
-}
-.panel-speaker-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.25rem 0.6rem;
-  border-radius: 20px;
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.02em;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
-  color: var(--color-text-muted);
-  transition: all var(--transition-snap);
-}
-.panel-speaker-badge:hover {
-  background: rgba(255,255,255,0.08);
-  color: var(--color-text);
-}
-.panel-speaker-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.panel-quote {
-  position: relative;
-  padding: 1rem 1.25rem;
-  margin-top: 0.75rem;
-  background: rgba(255,255,255,0.03);
-  border-left: 2px solid var(--layer-color, var(--color-text-muted));
-  border-radius: 0 6px 6px 0;
-}
-.panel-quote-text {
-  font-size: 0.85rem;
-  line-height: 1.6;
-  color: var(--color-text);
-  font-style: italic;
-}
-.panel-quote-attr {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: var(--color-text-muted);
-  margin-top: 0.5rem;
-  letter-spacing: 0.02em;
-}
-.panel-data-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-}
-.panel-data-item {
-  padding: 0.6rem 0.8rem;
-  background: rgba(255,255,255,0.03);
-  border-radius: 6px;
-  border: 1px solid rgba(255,255,255,0.06);
-}
-.panel-data-value {
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--color-text);
-}
-.panel-data-label {
-  font-size: 0.65rem;
-  color: var(--color-text-muted);
-  margin-top: 0.15rem;
-}
-
-/* Speaker Constellation */
-.constellation-section {
-  max-width: 880px;
-  margin: 0 auto;
-  padding: 4rem 2rem;
-}
-.constellation-section h2 { text-align: center; margin-bottom: 0.5rem; }
-.constellation-subtitle {
-  text-align: center;
-  color: var(--color-text-muted);
-  font-size: 0.9rem;
-  margin-bottom: 2.5rem;
-}
-.constellation-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
-}
-.constellation-card {
-  padding: 1.25rem;
-  background: var(--color-bg-surface);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 10px;
-  transition: all var(--transition-snap);
-}
-.constellation-card:hover {
-  border-color: rgba(255,255,255,0.12);
-  transform: translateY(-2px);
-}
-.constellation-card-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-.constellation-card-dot {
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.constellation-card-name {
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-.constellation-card-role {
-  font-size: 0.72rem;
-  color: var(--color-text-muted);
-  line-height: 1.4;
-  margin-bottom: 0.6rem;
-}
-.constellation-card-layers {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-}
-.constellation-layer-tag {
-  font-family: var(--font-mono);
-  font-size: 0.55rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 0.15rem 0.45rem;
-  border-radius: 3px;
-  background: rgba(255,255,255,0.05);
-  color: var(--color-text-dim);
-}
-
 /* =========================================================
    LESSON SECTION
    ========================================================= */
@@ -1642,18 +1499,6 @@ input[type="range"]::-moz-range-thumb {
 
 <div class="section-divider"></div>
 
-
-<!-- ============================================================
-     SPEAKER CONSTELLATION
-     ============================================================ -->
-<section class="constellation-section" id="speakers" aria-label="Speaker constellation">
-  <h2>Speaker Constellation</h2>
-  <p class="constellation-subtitle">13 builders. Every layer of the stack. From the power grid to the policy layer.</p>
-  <div class="constellation-grid" id="constellation-grid"></div>
-</section>
-
-<div class="section-divider"></div>
-
 <!-- ============================================================
      MODULE ROADMAP
      ============================================================ -->
@@ -1701,27 +1546,13 @@ input[type="range"]::-moz-range-thumb {
       brief: 'Data centers, power infrastructure, cooling',
       color: 'var(--color-energy)', colorHex: '#f59e0b', tag: 'L1', constraint: false,
       panel: {
-        what: 'Data centers consume 1-2% of global electricity. Saudi Arabia is building 1.5-2 GW of sovereign AI compute capacity. 50% of data center power is "tax" \u2014 cooling, networking, overhead. Only half does useful work. Digital infrastructure cycles every ~2.8 years; physical infrastructure every ~6.3 years.',
-        why: 'Energy is the physical floor. You cannot compute what you cannot power. Every other layer is ultimately bounded by available watts. Sovereign AI is an energy problem before it is a compute problem.',
+        what: 'Data centers consume 1-2% of global electricity. Frontier training runs require dedicated power infrastructure. A single large training run can consume as much electricity as a small city for months.',
+        why: 'Energy is the physical floor. You cannot compute what you cannot power. Every other layer in the stack is ultimately bounded by available watts.',
         depends: ['Grid capacity', 'Renewable contracts', 'Cooling infrastructure', 'Geographic proximity to power'],
-        breaks: 'Power reliability, thermal limits, grid allocation politics, water scarcity for cooling, permitting delays. The 50% power tax makes facility efficiency as impactful as chip improvements.',
-        who: 'Utilities, hyperscalers (Google, Microsoft, Amazon), sovereign wealth funds (Saudi PIF), nuclear startups.',
-        builder: 'Your inference costs have an energy floor you cannot optimize away. Cloud pricing is an energy derivative.',
-        lab: 'US-West and Nordics are cheaper; Singapore is expensive. Every watt saved on cooling is a watt for inference.',
-        speakers: [
-          { name: 'Abdullah Alswaha', role: 'Saudi Minister of IT', color: '#f59e0b' },
-          { name: 'Anjney Midha', role: 'AMP PBC', color: '#06b6d4' }
-        ],
-        quotes: [
-          { text: '50% of data center power is tax. Cooling, networking, overhead. When I say 1.5 to 2 gigawatts, only half does useful work.', attr: 'Abdullah Alswaha, Saudi Arabia' },
-          { text: 'Digital era infrastructure cycles about every 2.8 years. Physical infrastructure about every 6.3 years. That mismatch is where fortunes are made and lost.', attr: 'Anjney Midha, AMP PBC' }
-        ],
-        dataPoints: [
-          { value: '1.5-2 GW', label: 'Saudi sovereign compute' },
-          { value: '50%', label: 'Power lost to overhead' },
-          { value: '~6.3yr', label: 'Physical infra cycle' },
-          { value: '$20-30M', label: 'Cost per MW w/ compute' }
-        ]
+        breaks: 'Power reliability, thermal limits, grid allocation politics, water scarcity for cooling, permitting delays for new capacity.',
+        who: 'Utilities, hyperscalers (Google, Microsoft, Amazon), sovereign wealth funds, nuclear startups.',
+        builder: 'Your inference costs have an energy floor you cannot optimize away. The cheapest model call still has a power cost.',
+        lab: 'Cloud pricing is an energy derivative. Choose regions by power cost. US-West and Nordics are cheaper; Singapore is expensive.'
       }
     },
     {
@@ -1729,28 +1560,13 @@ input[type="range"]::-moz-range-thumb {
       brief: 'GPUs, TPUs, ASICs, fabrication bottleneck',
       color: 'var(--color-silicon)', colorHex: '#8b5cf6', tag: 'L2', constraint: false,
       panel: {
-        what: 'GPUs (NVIDIA H100/B200), TPUs, custom ASICs. The memory wall is the real bottleneck: HBM is 40% of GPU cost. Interconnect bandwidth was artificially stagnant \u2014 nobody asked for more until AI training created demand. Nvidia acquiring Mellanox restarted exponential improvement.',
-        why: 'Silicon determines the ceiling of what can be trained. If you are building sovereign compute, you are really building a memory procurement strategy.',
-        depends: ['Energy supply', 'TSMC fabrication capacity', 'HBM supply chain (SK Hynix)', 'Advanced packaging'],
-        breaks: 'TSMC concentration (single point of failure), export controls, Von Neumann bottleneck \u2014 60,000x transistor growth but fundamental architecture unchanged.',
-        who: 'NVIDIA, TSMC, AMD, Google (TPU), SK Hynix (HBM), Broadcom, Groq, Cerebras.',
-        builder: 'H100s at $1.73/hr and the price is going UP. We are in a pre-standardization era for compute.',
-        lab: 'Use inference-optimized chips. Training is rented, not owned. Apple M-series differentiates on memory bandwidth.',
-        speakers: [
-          { name: 'Abdullah Alswaha', role: 'Saudi Minister of IT', color: '#f59e0b' },
-          { name: 'Ben Mann', role: 'Anthropic', color: '#8b5cf6' },
-          { name: 'Anjney Midha', role: 'AMP PBC', color: '#06b6d4' }
-        ],
-        quotes: [
-          { text: 'HBM is 40% of the cost of a GPU. If you are building sovereign compute, you are really building a memory procurement strategy.', attr: 'Abdullah Alswaha, Saudi Arabia' },
-          { text: 'Cloud providers said we have 30 gigabit interconnects and nobody is asking for more. Then Nvidia acquires Mellanox with 400 gigabit interconnects.', attr: 'Ben Mann, Anthropic' }
-        ],
-        dataPoints: [
-          { value: '40%', label: 'GPU cost from HBM' },
-          { value: '$1.73/hr', label: 'H100 rental (rising)' },
-          { value: '60,000x', label: 'Transistor growth in 20yr' },
-          { value: '400 Gb/s', label: 'Mellanox interconnect' }
-        ]
+        what: 'GPUs (NVIDIA H100/B200), TPUs (Google), custom ASICs. Fabrication bottleneck at TSMC in Taiwan. Each generation of chips roughly doubles compute per watt.',
+        why: 'Silicon determines the ceiling of what can be trained and how fast. The chip you train on dictates the model you can build.',
+        depends: ['Energy supply', 'TSMC fabrication capacity', 'Chip design cycles (2-3 years)', 'Advanced packaging'],
+        breaks: 'Supply chain concentration (TSMC is a single point of failure), export controls, thermal density limits, DRAM bandwidth walls.',
+        who: 'NVIDIA, TSMC, AMD, Google (TPU), Intel, Broadcom, emerging startups (Groq, Cerebras, d-Matrix).',
+        builder: 'Chip scarcity sets your training budget. Multi-chip strategies matter. Inference chips are diverging from training chips.',
+        lab: 'Use inference-optimized chips. Training is rented, not owned. Check if your provider uses H100 vs. B200 vs. custom silicon.'
       }
     },
     {
@@ -1758,29 +1574,13 @@ input[type="range"]::-moz-range-thumb {
       brief: 'GPU clusters, networking fabric, coordination',
       color: 'var(--color-compute)', colorHex: '#06b6d4', tag: 'L3', constraint: false,
       panel: {
-        what: 'Interconnected GPU clusters (10K-100K+). Palantir: ~5,000 microservices across ~1,000 environments, ~100 airgapped. Cursor: 1-2K H100s, 100M calls/day. Compute is not yet fungible \u2014 no standard units, no standard pricing.',
-        why: 'Raw chips without coordination is wasted silicon. When all serving nodes die, recovery nodes get overwhelmed by queued traffic before they can become healthy.',
+        what: 'Interconnected GPU clusters (10,000-100,000+ GPUs), high-bandwidth networking fabric (InfiniBand, RoCE), distributed training coordination, and cluster management software.',
+        why: 'Raw chips without coordination is wasted silicon. A 10,000 GPU cluster that achieves 40% utilization wastes 6,000 GPUs worth of compute.',
         depends: ['Silicon supply', 'Network bandwidth (400Gb/s+)', 'Scheduling software', 'Reliability engineering'],
-        breaks: 'Cold start cascades, GPU failures, network bottlenecks. No container at Palantir lives longer than 72 hours \u2014 defense-grade immutable infrastructure.',
-        who: 'AWS, GCP, Azure, CoreWeave, Palantir (airgapped), sovereign compute programs.',
-        builder: 'Not chips \u2014 coordinated chips. Reserved capacity > spot pricing for production.',
-        lab: 'Use managed inference APIs. The best way to scale a database is not to have one.',
-        speakers: [
-          { name: 'Shyam Sankar', role: 'CTO, Palantir', color: '#06b6d4' },
-          { name: 'Sualeh Asif', role: 'CTO, Cursor', color: '#3b82f6' },
-          { name: 'Anjney Midha', role: 'AMP PBC', color: '#06b6d4' }
-        ],
-        quotes: [
-          { text: 'We create and destroy about 20,000 pods per hour. No container lives longer than 72 hours.', attr: 'Shyam Sankar, Palantir' },
-          { text: 'We do about 100 million model calls a day on custom models and about a billion documents a day in indexing.', attr: 'Sualeh Asif, Cursor' },
-          { text: 'Compute is not yet a fungible commodity. No common units, no standard delivery interfaces, no metering.', attr: 'Anjney Midha, AMP PBC' }
-        ],
-        dataPoints: [
-          { value: '5,000', label: 'Palantir microservices' },
-          { value: '100M/day', label: 'Cursor model calls' },
-          { value: '20K/hr', label: 'Pod churn rate' },
-          { value: '100K/wk', label: 'Software upgrades' }
-        ]
+        breaks: 'Network bottlenecks, job scheduling failures, checkpointing overhead, GPU failures (mean time between failures drops as cluster size grows).',
+        who: 'Hyperscalers (AWS, GCP, Azure), CoreWeave, Lambda, together.ai, government supercomputing centers.',
+        builder: 'Cluster access is the new competitive moat. Not chips \u2014 coordinated chips. Reserved capacity > spot pricing for production.',
+        lab: 'Use managed inference APIs. Don\'t build clusters. Your job is to use compute, not orchestrate it.'
       }
     },
     {
@@ -1788,60 +1588,27 @@ input[type="range"]::-moz-range-thumb {
       brief: 'Distributed training, data pipelines, RLHF',
       color: 'var(--color-training)', colorHex: '#e8e4dc', tag: 'L4', constraint: false,
       panel: {
-        what: 'Distributed training, data pipelines, alignment (RLHF, Constitutional AI). RL consumes ~50% of total training compute. On Llama: 6 people did data, 1 wrote training code. Data quality is the actual bottleneck.',
-        why: 'The Chinchilla trap: compute-optimal is NOT deployment-optimal. Train 10x beyond. A flipped negative sign on the reward model made it get "more and more evil." Training is like having a patient on life support.',
-        depends: ['Compute clusters', 'Data quality and diversity', 'Alignment techniques', 'Human evaluators'],
-        breaks: 'Loss spikes (roll back and re-run), bugs invisible at small scale (float16/32 identical at 7B, divergent at 70B after 2 weeks), reward hacking.',
-        who: 'Anthropic, OpenAI, DeepMind, Meta FAIR, Mistral (~40 researchers), xAI.',
-        builder: 'Fine-tuning even a few hundred examples can beat frontier APIs for your domain. Post-training is the equalizer.',
-        lab: 'Product usage data is an unexpectedly powerful training signal. Ship early \u2014 your product is your training pipeline.',
-        speakers: [
-          { name: 'Ben Mann', role: 'Anthropic', color: '#8b5cf6' },
-          { name: 'Guillaume Lample', role: 'Mistral', color: '#f97316' },
-          { name: 'Andreas Blattmann', role: 'Black Forest Labs', color: '#84cc16' },
-          { name: 'Anjney Midha', role: 'AMP PBC', color: '#06b6d4' }
-        ],
-        quotes: [
-          { text: 'We had a bug where we flipped a negative sign on the reward and the model was seeming to get more and more evil.', attr: 'Ben Mann, Anthropic' },
-          { text: 'We had one guy writing the training code and six people doing the data. The data is the most important thing.', attr: 'Guillaume Lample, Mistral' },
-          { text: 'RL is now consuming almost as much compute as the rest of the training pipeline combined.', attr: 'Anjney Midha, AMP PBC' }
-        ],
-        dataPoints: [
-          { value: '13 orders', label: 'Scaling law validity' },
-          { value: '6:1', label: 'Data vs code engineers' },
-          { value: '2,800', label: 'A100s for Llama' },
-          { value: '~50%', label: 'RL share of compute' }
-        ]
+        what: 'Distributed training frameworks (PyTorch FSDP, Megatron-LM, JAX), data pipelines, curriculum design, alignment techniques (RLHF, DPO, Constitutional AI), and safety fine-tuning.',
+        why: 'Training is where capability is forged. Bad training wastes compute. The difference between a useful model and a dangerous one is decided here.',
+        depends: ['Compute clusters', 'Data quality and diversity', 'Alignment techniques', 'Human evaluator workforce'],
+        breaks: 'Training instability (loss spikes), data contamination, reward hacking in RLHF, catastrophic forgetting, alignment tax on capability.',
+        who: 'Anthropic, OpenAI, Google DeepMind, Meta FAIR, Mistral, xAI, academic research groups.',
+        builder: 'Training is the most capital-intensive layer. Founders build ON trained models, not training them. Pre-training is a $100M+ bet.',
+        lab: 'Fine-tuning is your leverage point, not pre-training. A $100 fine-tune on a frontier model can outperform a $10M model trained from scratch for your domain.'
       }
     },
     {
       id: 'model', name: 'Model Architecture',
-      brief: 'Transformers, MoE, diffusion, multimodal',
+      brief: 'Transformers, MoE, multimodal, context scaling',
       color: 'var(--color-model)', colorHex: '#f0ece4', tag: 'L5', constraint: false,
       panel: {
-        what: 'Transformers, MoE, diffusion/flow matching. Autoregressive iterates along data (token by token). Diffusion iterates orthogonal (noise to clean). The future combines both. Models may have latent capabilities nobody has prompted correctly.',
-        why: 'Scaling laws held across 13 orders of magnitude. Most-used models today are 7B or 3B \u2014 nobody predicted that when GPT-3 launched at 175B.',
-        depends: ['Training capacity', 'Compute budget', 'Research breakthroughs', 'Hardware co-design'],
-        breaks: 'Chinchilla trap, diminishing returns, latent diffusion compressed generation by orders of magnitude \u2014 paradigm shifts reset the landscape.',
-        who: 'Anthropic, OpenAI, DeepMind, Mistral, Black Forest Labs (~100 people, $3B+ valuation).',
-        builder: 'Evaluate models on YOUR task, not benchmarks. Post-training innovation does not need massive GPUs.',
-        lab: 'Elicitation is free leverage. Chain-of-thought and creative prompting can dramatically change quality.',
-        speakers: [
-          { name: 'Andreas Blattmann', role: 'Black Forest Labs', color: '#84cc16' },
-          { name: 'Guillaume Lample', role: 'Mistral', color: '#f97316' },
-          { name: 'Ben Mann', role: 'Anthropic', color: '#8b5cf6' }
-        ],
-        quotes: [
-          { text: 'Autoregressive models iterate along the data dimension. Diffusion models iterate orthogonal to the data. Fundamentally different strategies.', attr: 'Andreas Blattmann, Black Forest Labs' },
-          { text: 'Post-training will be quite different. Any startup has as much chance as any company.', attr: 'Guillaume Lample, Mistral' },
-          { text: 'Scaling laws held across 13 orders of magnitude. Very rare even in the physical world.', attr: 'Ben Mann, Anthropic' }
-        ],
-        dataPoints: [
-          { value: '7B-3B', label: 'Most-used model sizes' },
-          { value: '50\u21924', label: 'Diffusion distillation' },
-          { value: '~100', label: 'BFL team size' },
-          { value: '$3B+', label: 'BFL valuation' }
-        ]
+        what: 'Transformer variants, mixture-of-experts (MoE), multimodal architectures (vision, audio, code), context window scaling (100K-1M+ tokens), and emerging post-transformer architectures.',
+        why: 'Architecture determines what the model CAN learn, not what it DOES learn. The ceiling of capability is structural.',
+        depends: ['Training systems capacity', 'Compute budget', 'Research breakthroughs', 'Hardware co-design'],
+        breaks: 'Scaling limits (diminishing returns on parameters), emergent failures at scale, capability-alignment tradeoffs, context window degradation.',
+        who: 'Research labs (Anthropic, OpenAI, DeepMind, Meta), academic groups (Stanford, Berkeley, Tsinghua), independent researchers.',
+        builder: 'Model choice is your most leveraged technical decision. The difference between models for your use case can be 2x in quality.',
+        lab: 'Bet on the frontier model API. Architecture is abstracted away from you. Evaluate models on YOUR task, not benchmarks.'
       }
     },
     {
@@ -1849,92 +1616,40 @@ input[type="range"]::-moz-range-thumb {
       brief: 'Serving, latency, batching, caching, quantization',
       color: 'var(--color-inference)', colorHex: '#3b82f6', tag: 'L6', constraint: false,
       panel: {
-        what: 'Model serving, latency optimization, batching, KV-cache. Cursor crashed providers at 30-40M tokens/min. ElevenLabs: ~300ms voice response with fused models. AI workloads invert compute: fast request, slow response.',
-        why: 'Inference is the recurring cost of every interaction. Your unit economics live here. No one has good reliability at frontier scale.',
-        depends: ['Model size', 'Hardware (GPU/TPU)', 'Traffic patterns', 'Latency requirements'],
-        breaks: 'Cold start cascades, provider unreliability, quality degradation from quantization. Cascaded pipelines: reliable but slow. Fused: fast but fragile.',
-        who: 'Cloud providers, Groq, Cerebras, Fireworks, Cursor (1-2K H100s), ElevenLabs, Vercel.',
-        builder: 'Design for provider failure from day one. A 2x reduction in inference cost can flip your unit economics.',
-        lab: 'Optimize prompts before infrastructure. Use the cheapest model per use case. Cache aggressively.',
-        speakers: [
-          { name: 'Sualeh Asif', role: 'CTO, Cursor', color: '#3b82f6' },
-          { name: 'Mati Staniszewski', role: 'CEO, ElevenLabs', color: '#84cc16' },
-          { name: 'Guillermo Rauch', role: 'CEO, Vercel', color: '#e8e4dc' }
-        ],
-        quotes: [
-          { text: 'No one has good reliability. We crashed them at 30-40 million tokens a minute. Their caches fail, their rate limits break.', attr: 'Sualeh Asif, Cursor' },
-          { text: 'Fused models respond in roughly 300ms. But you sacrifice on the reliability piece.', attr: 'Mati Staniszewski, ElevenLabs' },
-          { text: 'If you are IO-bound waiting on DeepSeek R1 to think, we intelligently saturate that allocated compute.', attr: 'Guillermo Rauch, Vercel' }
-        ],
-        dataPoints: [
-          { value: '30-40M', label: 'Tokens/min crashed providers' },
-          { value: '~300ms', label: 'ElevenLabs fused latency' },
-          { value: '20K/sec', label: 'Cursor autocomplete calls' },
-          { value: '1-2K', label: 'Cursor H100 fleet' }
-        ]
+        what: 'Model serving infrastructure, latency optimization, continuous batching, KV-cache management, quantization (INT8/INT4), speculative decoding, prompt caching, and request routing.',
+        why: 'Training is a one-time cost. Inference is the recurring cost of every user interaction. Your unit economics live here.',
+        depends: ['Model size and architecture', 'Hardware (GPU/TPU)', 'Traffic patterns', 'Latency requirements'],
+        breaks: 'Cost scaling with traffic, latency under load, quality degradation from aggressive quantization, cold start times, cache miss storms.',
+        who: 'Cloud providers, inference startups (Groq, Cerebras, Fireworks, together.ai), model providers (Anthropic, OpenAI).',
+        builder: 'Inference cost determines your unit economics. This is your marginal cost. A 2x reduction in inference cost can make an unprofitable product profitable.',
+        lab: 'Optimize prompts before optimizing infrastructure. Shorter prompts are cheaper. Cache aggressively. Batch where latency permits.'
       }
     },
     {
       id: 'application', name: 'Applications & Product',
-      brief: 'Agents, assistants, creative tools, code gen, voice',
+      brief: 'Agents, assistants, creative tools, code gen',
       color: 'var(--color-application)', colorHex: '#84cc16', tag: 'L7', constraint: false,
       panel: {
-        what: 'ElevenLabs: $430M ARR in ~36 months. Anthropic: 10x revenue in one year, 10x in coding in 3 months. Vercel v0: doubled revenue 3x in 14-20 days. Reddit Answers: built in 90 days. For 90% of companies, a pre-trained checkpoint is unusable.',
-        why: 'Where value reaches humans. Everything below exists to serve this layer. A single builder with deep domain expertise creates more value than a team without it.',
+        what: 'Products built on frontier AI \u2014 agents, assistants, creative tools, analysis systems, code generation, search, and domain-specific applications.',
+        why: 'This is where value reaches humans. Everything below exists to serve this layer. The application layer is where revenue happens.',
         depends: ['Inference quality and cost', 'Model capabilities', 'UX design', 'Domain knowledge'],
-        breaks: 'Hallucination undermining trust, latency killing UX, cost making business models impossible. The deployment gap is enormous.',
-        who: 'Cursor, ElevenLabs ($430M ARR), Vercel (v0), Reddit, startups, solo builders.',
-        builder: 'This is YOUR layer. ElevenLabs teams are <10 people with full ownership. Ship the product, not the model.',
-        lab: 'The model is a commodity; your understanding of the user is the moat. 90 days is enough to ship.',
-        speakers: [
-          { name: 'Mati Staniszewski', role: 'CEO, ElevenLabs', color: '#84cc16' },
-          { name: 'Guillermo Rauch', role: 'CEO, Vercel', color: '#e8e4dc' },
-          { name: 'Sualeh Asif', role: 'CTO, Cursor', color: '#3b82f6' },
-          { name: 'Guillaume Lample', role: 'Mistral', color: '#f97316' },
-          { name: 'Ben Mann', role: 'Anthropic', color: '#8b5cf6' }
-        ],
-        quotes: [
-          { text: 'We crossed 2025 at 330 million in revenue and this quarter added over 100 million in ARR. Now over 430.', attr: 'Mati Staniszewski, ElevenLabs' },
-          { text: 'v0 basically doubled revenue three times in 14 to 20 days.', attr: 'Guillermo Rauch, Vercel' },
-          { text: 'For 90% of companies, if you give them a pre-trained checkpoint, they will not be able to use it.', attr: 'Guillaume Lample, Mistral' },
-          { text: 'APIs are forever. Once you release an API, companies depend on it.', attr: 'Ben Mann, Anthropic' }
-        ],
-        dataPoints: [
-          { value: '$430M', label: 'ElevenLabs ARR (36mo)' },
-          { value: '10x', label: 'Anthropic revenue (1yr)' },
-          { value: '90 days', label: 'Reddit Answers build' },
-          { value: '3x/20d', label: 'v0 revenue doubling' }
-        ]
+        breaks: 'Hallucination undermining trust, latency killing UX, cost making business models impossible, regulatory friction blocking deployment.',
+        who: 'Startups, enterprises, platform companies, solo builders, open-source developers.',
+        builder: 'This is YOUR layer. The one-person frontier lab operates here. Your competitive advantage is domain knowledge + UX, not model capability.',
+        lab: 'The model is a commodity; your understanding of the user is the moat. Build the product that only you can build.'
       }
     },
     {
       id: 'security', name: 'Security & Safety',
-      brief: 'Alignment, red-teaming, content filtering, trust',
+      brief: 'Alignment, red-teaming, content filtering',
       color: 'var(--color-security)', colorHex: '#ef4444', tag: 'CF', constraint: true,
       panel: {
-        what: 'Thorn: 200B files/year for CSAM detection across 60+ companies. Okta: 10B authentications/month. No clear cybersecurity law \u2014 regulation by enforcement. Open-source model releases directly caused measurable CSAM spikes.',
-        why: 'Safety failures cascade through every layer. A CSO was personally prosecuted. Okta was hacked twice and rebuilt its entire culture. The CSO role is becoming untenable.',
-        pressure: 'Training (alignment, RLAIF), Inference (real-time filtering), Applications (trust, moderation).',
-        breaks: 'Jailbreaks, data poisoning, CSO liability crisis, content moderator mental health. Thorn designs UX to protect reviewers from trauma.',
-        who: 'Anthropic (RSP), Thorn (60+ companies), Okta (1B users/month), AI Safety Institutes.',
-        builder: 'Safety work can become your commercial moat \u2014 Anthropic RLAIF was meant for safety but became the product differentiator.',
-        speakers: [
-          { name: 'Joe Sullivan', role: 'ex-Cloudflare CSO', color: '#ef4444' },
-          { name: 'Julie Cordua', role: 'CEO, Thorn', color: '#ef4444' },
-          { name: 'Todd McKinnon', role: 'CEO, Okta', color: '#ef4444' },
-          { name: 'Ben Mann', role: 'Anthropic', color: '#8b5cf6' }
-        ],
-        quotes: [
-          { text: 'I was charged with obstruction of justice. I did not think I did anything wrong, so I went to trial.', attr: 'Joe Sullivan, ex-Cloudflare CSO' },
-          { text: 'We processed about 200 billion files. The predictive models find content the world has never seen.', attr: 'Julie Cordua, Thorn' },
-          { text: 'We did not change our culture fast enough. We should have changed it five years ago.', attr: 'Todd McKinnon, Okta' }
-        ],
-        dataPoints: [
-          { value: '200B', label: 'Thorn files/year' },
-          { value: '10B', label: 'Okta auths/month' },
-          { value: '60+', label: 'Companies using Thorn' },
-          { value: '<24hr', label: 'Log4J patch (all envs)' }
-        ]
+        what: 'Alignment research, red-teaming and adversarial testing, content filtering, model security, adversarial robustness, watermarking, and responsible deployment practices.',
+        why: 'Safety failures cascade through every layer above. A jailbroken model is a product liability, a brand risk, and potentially a legal violation \u2014 simultaneously.',
+        pressure: 'Training (alignment techniques), Inference (real-time filtering), Applications (trust and content policy).',
+        breaks: 'Jailbreaks and prompt injection, data poisoning, model extraction and theft, misuse at scale, deepfakes, automated social engineering.',
+        who: 'Safety teams at labs (Anthropic RSP, OpenAI Safety, DeepMind Safety), NIST AI Risk Framework, academic researchers, civil society organizations.',
+        builder: 'Safety is a feature requirement, not an optional layer. Build safety as infrastructure, not an afterthought.'
       }
     },
     {
@@ -1942,63 +1657,28 @@ input[type="range"]::-moz-range-thumb {
       brief: 'Training costs, unit economics, venture funding',
       color: 'var(--color-economics)', colorHex: '#94a3b8', tag: 'CF', constraint: true,
       panel: {
-        what: 'Training: $100M-$1B+. Anthropic needed $500M for first milestone. GPU rental $1.73/hr and rising. Saudi: $40-60B in sovereign compute. ElevenLabs pricing: capture 1/10th of value delivered.',
-        why: 'Capital determines which layers get built. Compute is pre-standardization \u2014 no fungible units. Digital cycles 2.8yr vs physical 6.3yr.',
-        pressure: 'All layers \u2014 from energy ($B in data centers) to application monetization.',
-        breaks: 'Unsustainable burn rates, 22 intros / 21 rejections reality, winner-take-all dynamics.',
-        who: 'VCs, sovereign wealth funds, hyperscalers, ElevenLabs ($1M revenue per employee).',
-        builder: 'Capital efficiency is survival. Revenue per employee is the metric. Raise for distribution, not infrastructure.',
-        speakers: [
-          { name: 'Anjney Midha', role: 'AMP PBC', color: '#06b6d4' },
-          { name: 'Abdullah Alswaha', role: 'Saudi Minister of IT', color: '#f59e0b' },
-          { name: 'Mati Staniszewski', role: 'CEO, ElevenLabs', color: '#84cc16' },
-          { name: 'Ben Mann', role: 'Anthropic', color: '#8b5cf6' }
-        ],
-        quotes: [
-          { text: 'H100s are at $1.73 an hour and the price is going up, not down. We are in a pre-standardization era for compute.', attr: 'Anjney Midha, AMP PBC' },
-          { text: 'Think about the value you deliver and work backwards. Never from cost. Capture one-tenth of what you delivered.', attr: 'Mati Staniszewski, ElevenLabs' },
-          { text: '$135 billion digital economy growing by 60% in 7 years.', attr: 'Abdullah Alswaha, Saudi Arabia' }
-        ],
-        dataPoints: [
-          { value: '$500M', label: 'Anthropic first milestone' },
-          { value: '22/21', label: 'Intros vs rejections' },
-          { value: '~$1M', label: 'ElevenLabs rev/employee' },
-          { value: '$40-60B', label: 'Saudi compute investment' }
-        ]
+        what: 'Training costs ($100M-$1B+), inference unit economics, venture funding dynamics, hyperscaler capex ($50B+/year), sovereign AI investment, and the financial structure of AI companies.',
+        why: 'Capital allocation determines which layers get built and who controls them. Money flows define the topology of the stack.',
+        pressure: 'All layers \u2014 from energy investment ($B in data center construction) to application monetization (SaaS pricing, API pricing, freemium conversion).',
+        breaks: 'Unsustainable burn rates ($5B+/year for frontier labs), winner-take-all dynamics, value capture misalignment, bubble risk.',
+        who: 'VCs (Sequoia, a16z, Tiger Global), sovereign wealth funds (Saudi PIF, Singapore GIC), hyperscalers, public markets.',
+        builder: 'Capital efficiency is survival. Use the cheapest layer that solves your problem. Don\'t raise for infrastructure; raise for distribution.'
       }
     },
     {
       id: 'policy', name: 'Policy & Geopolitics',
-      brief: 'Export controls, sovereign AI, regulation',
+      brief: 'Export controls, regulation, open-source policy',
       color: 'var(--color-policy)', colorHex: '#f97316', tag: 'CF', constraint: true,
       panel: {
-        what: 'Export controls, EU AI Act (specs in debate), Cloud Act (US gov accesses data on any US-company server globally), sovereign AI movements. Saudi: "no model religion."',
-        why: 'Policy shapes what can be built, where, by whom. Closed models for non-sensitive contexts; sovereign contexts need local open-source.',
-        pressure: 'Silicon (export controls), Training (data regulation), Deployment (EU AI Act, sovereignty).',
-        breaks: 'Regulatory fragmentation, compliance cost, open-source releases caused safety externalities. The open/closed tension is unresolved.',
-        who: 'US BIS, EU Commission, Saudi Arabia (Vision 2030), Mistral (European sovereignty), Thorn.',
-        builder: 'Regulation creates moats and barriers. Companies that solve compliance become infrastructure.',
-        speakers: [
-          { name: 'Abdullah Alswaha', role: 'Saudi Minister of IT', color: '#f59e0b' },
-          { name: 'Anjney Midha', role: 'AMP PBC', color: '#06b6d4' },
-          { name: 'Guillaume Lample', role: 'Mistral', color: '#f97316' },
-          { name: 'Julie Cordua', role: 'CEO, Thorn', color: '#ef4444' }
-        ],
-        quotes: [
-          { text: 'We have no model religion. We invested in Mistral, work with OpenAI, Google, Meta. The goal is to ensure we have options.', attr: 'Abdullah Alswaha, Saudi Arabia' },
-          { text: 'The US government can access data on US-company servers globally. That is driving real demand for sovereign infrastructure.', attr: 'Anjney Midha, AMP PBC' },
-          { text: 'There is no big tech in Europe.', attr: 'Guillaume Lample, Mistral' }
-        ],
-        dataPoints: [
-          { value: '250x', label: 'China vs US shipbuilding' },
-          { value: '381K', label: 'Saudi tech workforce' },
-          { value: '7/15', label: 'MENA unicorns from Saudi' },
-          { value: '$2.73T', label: 'Stanford ecosystem value' }
-        ]
+        what: 'Export controls (US chip restrictions on China), AI regulation (EU AI Act, US executive orders), open-source licensing debates, AI sovereignty movements, and international coordination attempts.',
+        why: 'Policy shapes what can be built, where, and by whom. Export controls literally determine which countries can train frontier models.',
+        pressure: 'Silicon (export controls on advanced chips), Training (data regulation, copyright), Deployment (compliance requirements, liability).',
+        breaks: 'Regulatory fragmentation (different rules per jurisdiction), compliance cost (EU AI Act implementation), innovation chilling effects, open-source restrictions.',
+        who: 'Governments (US BIS, EU Commission, UK DSIT), standards bodies (NIST, ISO), international organizations (OECD, UN), lobbying groups.',
+        builder: 'Regulation creates moats and barriers simultaneously. Companies that solve compliance become infrastructure. Navigate, don\'t ignore.'
       }
     }
   ];
-
 
   /* ==========================================================
      BOOT SEQUENCE: Intersection Observer
@@ -2211,25 +1891,8 @@ input[type="range"]::-moz-range-thumb {
     name.style.color = layer.colorHex;
 
     var h = '';
-
-    if (layer.panel.speakers && layer.panel.speakers.length) {
-      h += '<div class="panel-section"><div class="panel-section-label">CS153 Speakers</div><div class="panel-speakers">';
-      layer.panel.speakers.forEach(function(s) {
-        h += '<span class="panel-speaker-badge"><span class="panel-speaker-dot" style="background:' + s.color + '"></span>' + s.name + '</span>';
-      });
-      h += '</div></div>';
-    }
-
     h += sec('What', layer.panel.what);
     h += sec('Why It Matters', layer.panel.why);
-
-    if (layer.panel.dataPoints && layer.panel.dataPoints.length) {
-      h += '<div class="panel-section"><div class="panel-section-label">By The Numbers</div><div class="panel-data-grid">';
-      layer.panel.dataPoints.forEach(function(d) {
-        h += '<div class="panel-data-item"><div class="panel-data-value">' + d.value + '</div><div class="panel-data-label">' + d.label + '</div></div>';
-      });
-      h += '</div></div>';
-    }
 
     if (layer.panel.depends) {
       h += '<div class="panel-section"><div class="panel-section-label">Depends On</div><div class="panel-deps">';
@@ -2253,19 +1916,10 @@ input[type="range"]::-moz-range-thumb {
         layer.panel.lab + '</div></div>';
     }
 
-    if (layer.panel.quotes && layer.panel.quotes.length) {
-      h += '<div class="panel-section"><div class="panel-section-label">From the Lectures</div>';
-      layer.panel.quotes.forEach(function(q) {
-        h += '<div class="panel-quote" style="--layer-color:' + layer.colorHex + '"><div class="panel-quote-text">\u201c' + q.text + '\u201d</div><div class="panel-quote-attr">\u2014 ' + q.attr + '</div></div>';
-      });
-      h += '</div>';
-    }
-
     content.innerHTML = h;
     document.getElementById('panel-overlay').classList.add('open');
     document.getElementById('side-panel').classList.add('open');
   }
-
 
   function sec(label, text, dim) {
     return '<div class="panel-section"><div class="panel-section-label">' + label +
@@ -2310,18 +1964,17 @@ input[type="range"]::-moz-range-thumb {
   ];
 
   var SIM_EXPLAIN = {
-    Energy: '"50% of data center power is tax" \u2014 Alswaha. Your demands outstrip available power. Sovereign AI is an energy problem before a compute problem. Digital infra cycles 2.8yr, physical 6.3yr.',
-    Silicon: '"HBM is 40% of GPU cost" \u2014 Alswaha. The memory wall is real: 60,000x transistor growth but Von Neumann unchanged. GPU prices rising ($1.73/hr). Multi-vendor strategies matter.',
-    Compute: '"Compute is not yet a fungible commodity" \u2014 Midha. No standard units, no standard pricing. Palantir churns 20K pods/hour. Cursor runs 100M calls/day. Coordination, not raw chips.',
-    Training: '"The data is the most important thing" \u2014 Lample. 6:1 data-to-code engineers on Llama. Chinchilla trap: compute-optimal is NOT deployment-optimal. RL now consumes ~50% of pipeline.',
-    Model: '"Any startup has as much chance" \u2014 Lample on post-training. Autoregressive along data; diffusion orthogonal. Elicitation overhang: latent capabilities await the right prompt.',
-    Inference: '"No one has good reliability" \u2014 Asif. Cursor crashed providers at 30-40M tokens/min. ElevenLabs gets 300ms fused but sacrifices reliability. Design for failure.',
-    Applications: '"90% of companies cannot use a checkpoint" \u2014 Lample. Sell solutions. ElevenLabs: $430M ARR in 36 months. v0: revenue doubled 3x in 20 days. Ship the product.',
-    Security: '"I was charged with obstruction of justice" \u2014 Sullivan. Thorn: 200B files/year. Okta hacked twice. Open-source releases caused CSAM spikes. Safety cascades through all layers.',
-    Economics: '"H100s at $1.73/hr and rising" \u2014 Midha. Anthropic needed $500M (22 intros, 21 rejections). Capture 1/10th of value. Capital efficiency is survival.',
-    Policy: '"US gov accesses data on any US-company server globally" \u2014 Midha. Saudi has no model religion. No big tech in Europe. Open/closed tension unresolved.'
+    Energy: 'Your compute and model scale demands outstrip available power. Data center capacity is the binding constraint. Consider more efficient architectures or regional arbitrage.',
+    Silicon: 'Chip supply cannot meet your compute requirements. GPU/TPU scarcity limits cluster size. Multi-vendor strategies or reserved capacity can help.',
+    Compute: 'Cluster coordination is the bottleneck. Your scale demands exceed available coordinated compute. Managed infrastructure or hybrid cloud is needed.',
+    Training: 'Model training at this scale requires capital and compute you may lack. Fine-tuning or using pre-trained frontier models is more capital-efficient.',
+    Model: 'Model capability constraints are limiting your application. Evaluate if a different architecture or provider better fits your latency/quality tradeoffs.',
+    Inference: 'Serving costs dominate your economics. Traffic scale and latency requirements create unsustainable unit costs. Optimize prompts, cache responses, try smaller models for common queries.',
+    Applications: 'The application layer is your bottleneck \u2014 product-market fit, UX, or domain expertise. The infrastructure is sufficient; build better products.',
+    Security: 'Safety requirements are constraining deployment speed and capability exposure. Invest in alignment, red-teaming, and safety infrastructure.',
+    Economics: 'Capital constraints limit your options at every layer. Optimize for capital efficiency: use API models, minimize infrastructure, focus on revenue before scale.',
+    Policy: 'Regulatory compliance is consuming bandwidth and blocking deployment in key markets. Build compliance as infrastructure, not ad-hoc.'
   };
-
 
   function renderSimulator() {
     var stackEl = document.getElementById('sim-stack');
@@ -2398,45 +2051,6 @@ input[type="range"]::-moz-range-thumb {
     document.getElementById('sim-bottleneck-explain').textContent = SIM_EXPLAIN[nm];
   }
 
-
-  /* ==========================================================
-     SPEAKER CONSTELLATION
-     ========================================================== */
-  var SPEAKERS = [
-    { name: 'Anjney Midha', role: 'AMP PBC / Course Instructor', layers: ['Compute', 'Economics', 'Policy'], color: '#06b6d4', semester: 'Spring 2026' },
-    { name: 'Ben Mann', role: 'Co-Founder, Anthropic', layers: ['Training', 'Models', 'Safety'], color: '#8b5cf6', semester: 'Winter 2025' },
-    { name: 'Guillaume Lample', role: 'Co-Founder, Mistral', layers: ['Training', 'Models', 'Applications'], color: '#f97316', semester: 'Winter 2025' },
-    { name: 'Andreas Blattmann', role: 'Co-Founder, Black Forest Labs', layers: ['Training', 'Models', 'Inference'], color: '#84cc16', semester: 'Spring 2026' },
-    { name: 'Sualeh Asif', role: 'CTO & Co-Founder, Cursor', layers: ['Compute', 'Inference', 'Applications'], color: '#3b82f6', semester: 'Winter 2025' },
-    { name: 'Mati Staniszewski', role: 'CEO & Co-Founder, ElevenLabs', layers: ['Models', 'Inference', 'Applications'], color: '#84cc16', semester: 'Spring 2026' },
-    { name: 'Guillermo Rauch', role: 'CEO, Vercel', layers: ['Compute', 'Inference', 'Applications'], color: '#e8e4dc', semester: 'Winter 2025' },
-    { name: 'Steve Huffman', role: 'CEO & Co-Founder, Reddit', layers: ['Compute', 'Applications', 'Policy'], color: '#ef4444', semester: 'Winter 2025' },
-    { name: 'Shyam Sankar', role: 'CTO, Palantir', layers: ['Compute', 'Applications', 'Security'], color: '#06b6d4', semester: 'Winter 2025' },
-    { name: 'Abdullah Alswaha', role: 'Saudi Minister of IT', layers: ['Energy', 'Silicon', 'Policy'], color: '#f59e0b', semester: 'Winter 2025' },
-    { name: 'Joe Sullivan', role: 'ex-CSO, Cloudflare & Uber', layers: ['Security', 'Policy'], color: '#ef4444', semester: 'Winter 2025' },
-    { name: 'Julie Cordua', role: 'CEO, Thorn', layers: ['Security', 'Applications'], color: '#ef4444', semester: 'Winter 2025' },
-    { name: 'Todd McKinnon', role: 'CEO & Founder, Okta', layers: ['Security', 'Compute'], color: '#ef4444', semester: 'Winter 2025' }
-  ];
-
-  function renderConstellation() {
-    var grid = document.getElementById('constellation-grid');
-    if (!grid) return;
-    var h = '';
-    SPEAKERS.forEach(function(s) {
-      h += '<div class="constellation-card">' +
-        '<div class="constellation-card-header">' +
-        '<div class="constellation-card-dot" style="background:' + s.color + '"></div>' +
-        '<div class="constellation-card-name" style="color:' + s.color + '">' + s.name + '</div></div>' +
-        '<div class="constellation-card-role">' + s.role + ' \u00B7 ' + s.semester + '</div>' +
-        '<div class="constellation-card-layers">';
-      s.layers.forEach(function(l) {
-        h += '<span class="constellation-layer-tag">' + l + '</span>';
-      });
-      h += '</div></div>';
-    });
-    grid.innerHTML = h;
-  }
-
   /* ==========================================================
      MODULE ROADMAP
      ========================================================== */
@@ -2486,7 +2100,6 @@ input[type="range"]::-moz-range-thumb {
     initBootSequence();
     renderStack();
     renderSimulator();
-    renderConstellation();
     renderRoadmap();
     requestAnimationFrame(function() { setTimeout(drawDependencyLines, 200); });
   }
