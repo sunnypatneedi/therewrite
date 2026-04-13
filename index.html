@@ -195,6 +195,8 @@ h3 { font-size: clamp(1rem, 2vw, 1.5rem); }
   color: var(--color-text-muted);
 }
 .header-title span { color: var(--color-text); font-weight: 700; }
+.header-title a, .subtitle a, .footer-text a { color: inherit; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.15); transition: border-color 200ms, color 200ms; }
+.header-title a:hover, .subtitle a:hover, .footer-text a:hover { color: var(--color-text); border-color: var(--color-compute); }
 .header-nav {
   display: flex;
   gap: 1.5rem;
@@ -1315,7 +1317,7 @@ input[type="range"]::-moz-range-thumb {
 
   <div class="boot-intro motion-boot" id="boot-intro">
     <h1>Frontier AI Is a<br>Systems Problem</h1>
-    <p class="subtitle">Stanford CS153 &mdash; The infrastructure stack behind intelligence</p>
+    <p class="subtitle"><a href="https://cs153.stanford.edu/" target="_blank" rel="noopener">Stanford CS153</a> &mdash; The infrastructure stack behind intelligence</p>
   </div>
 
   <div class="boot-layers-container" id="boot-layers">
@@ -1667,7 +1669,7 @@ input[type="range"]::-moz-range-thumb {
      FOOTER
      ============================================================ -->
 <footer class="site-footer">
-  <p class="footer-text">THE REWRITE // Frontier Systems &mdash; Stanford CS153 &mdash; 2026</p>
+  <p class="footer-text">THE REWRITE // Frontier Systems &mdash; <a href="https://cs153.stanford.edu/" target="_blank" rel="noopener">Stanford CS153</a> &mdash; 2026</p>
 </footer>
 
 <!-- ============================================================
