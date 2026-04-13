@@ -1,0 +1,2503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE REWRITE // Frontier Systems — Stanford CS153</title>
+<meta name="description" content="An interactive systems map of frontier AI infrastructure. Stanford CS153.">
+<style>
+/* =========================================================
+   CSS CUSTOM PROPERTIES
+   ========================================================= */
+:root {
+  --color-bg: #1a1a1e;
+  --color-bg-surface: #242428;
+  --color-bg-elevated: #2e2e34;
+  --color-text: #e8e4dc;
+  --color-text-muted: #8a8580;
+  --color-text-dim: #5a5550;
+  --color-energy: #f59e0b;
+  --color-silicon: #8b5cf6;
+  --color-compute: #06b6d4;
+  --color-training: #e8e4dc;
+  --color-model: #f0ece4;
+  --color-inference: #3b82f6;
+  --color-application: #84cc16;
+  --color-security: #ef4444;
+  --color-economics: #94a3b8;
+  --color-policy: #f97316;
+  --color-constraint: rgba(239,68,68,0.15);
+  --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', Menlo, Consolas, 'Liberation Mono', monospace;
+  --font-sans: Inter, 'SF Pro Display', system-ui, -apple-system, sans-serif;
+  --panel-width: 480px;
+  --header-height: 56px;
+  --spine-width: 2px;
+  --layer-height: 72px;
+  --transition-snap: 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 400ms ease-out;
+}
+
+/* =========================================================
+   RESET & BASE
+   ========================================================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+::selection { background: rgba(139, 92, 246, 0.3); color: #fff; }
+
+/* Noise texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.035;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+}
+
+/* =========================================================
+   TYPOGRAPHY
+   ========================================================= */
+h1, h2, h3, h4 { font-family: var(--font-mono); font-weight: 600; letter-spacing: -0.02em; }
+h1 { font-size: clamp(1.5rem, 3vw, 2.5rem); }
+h2 { font-size: clamp(1.25rem, 2.5vw, 2rem); }
+h3 { font-size: clamp(1rem, 2vw, 1.5rem); }
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+.mono { font-family: var(--font-mono); }
+
+/* =========================================================
+   MOTION GRAMMAR
+   ========================================================= */
+.motion-boot {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 300ms ease-out, transform 300ms ease-out;
+}
+.motion-boot.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes pulse-glow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.3); }
+}
+.motion-pulse { animation: pulse-glow 2s ease-in-out infinite; }
+
+@keyframes surge {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+.motion-surge { animation: surge 400ms ease-out; }
+
+@keyframes ripple-up {
+  0% { opacity: 0.5; transform: scaleY(0.95); }
+  100% { opacity: 1; transform: scaleY(1); }
+}
+.motion-ripple { animation: ripple-up 150ms ease-out; }
+
+.motion-snap { transition: all var(--transition-snap); }
+
+@keyframes collapse-shake {
+  0% { transform: scale(1) translateX(0); filter: saturate(1); }
+  25% { transform: scale(0.97) translateX(-2px); }
+  50% { transform: scale(0.95) translateX(2px); filter: saturate(0.5); }
+  75% { transform: scale(0.96) translateX(-1px); }
+  100% { transform: scale(0.95) translateX(0); filter: saturate(0.3); }
+}
+.motion-collapse { animation: collapse-shake 500ms ease-out forwards; }
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  10% { opacity: 0.8; }
+  20% { opacity: 1; }
+  30% { opacity: 0.6; }
+  40% { opacity: 0.9; }
+  50% { opacity: 1; }
+  60% { opacity: 0.7; }
+  70% { opacity: 1; }
+}
+.motion-flicker { animation: flicker 1.5s ease-in-out; }
+
+@keyframes glow-breathe {
+  0%, 100% { box-shadow: 0 0 8px var(--glow-color, rgba(255,255,255,0.1)); }
+  50% { box-shadow: 0 0 24px var(--glow-color, rgba(255,255,255,0.2)), 0 0 48px var(--glow-color, rgba(255,255,255,0.05)); }
+}
+.motion-breathe { animation: glow-breathe 3s ease-in-out infinite; }
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .motion-boot { opacity: 1; transform: none; }
+  .boot-layer { opacity: 1 !important; transform: none !important; }
+}
+
+/* =========================================================
+   PRINT STYLES
+   ========================================================= */
+@media print {
+  body::before { display: none; }
+  .boot-sequence { display: none; }
+  .fixed-header { position: static; }
+  .side-panel { display: none; }
+  .side-panel-overlay { display: none; }
+  .scroll-cue { display: none; }
+  * { animation: none !important; transition: none !important; }
+  body { background: #fff; color: #000; }
+  .layer-node { opacity: 1 !important; }
+}
+
+/* =========================================================
+   FIXED HEADER
+   ========================================================= */
+.fixed-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  background: rgba(26, 26, 30, 0.9);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.header-title {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.header-title span { color: var(--color-text); font-weight: 700; }
+.header-nav {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+}
+.header-nav a {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color 200ms;
+}
+.header-nav a:hover { color: var(--color-text); }
+
+/* =========================================================
+   BOOT SEQUENCE
+   ========================================================= */
+.boot-sequence {
+  position: relative;
+  min-height: 300vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: calc(var(--header-height) + 4rem);
+}
+.boot-spine {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--header-height) + 2rem);
+  bottom: 2rem;
+  width: var(--spine-width);
+  background: rgba(255,255,255,0.04);
+  transform: translateX(-50%);
+}
+.boot-intro {
+  text-align: center;
+  margin-bottom: 4rem;
+  max-width: 640px;
+  padding: 0 2rem;
+  position: relative;
+  z-index: 2;
+}
+.boot-intro h1 {
+  margin-bottom: 1rem;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 1.1;
+}
+.boot-intro .subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
+}
+.boot-layers-container {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6rem;
+  padding: 4rem 2rem 8rem;
+  z-index: 2;
+}
+.boot-layer {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 600ms ease-out, transform 600ms ease-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  max-width: 560px;
+}
+.boot-layer.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.boot-layer-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  position: relative;
+  border: 2px solid;
+  transition: box-shadow 600ms ease-out;
+}
+.boot-layer.visible .boot-layer-icon {
+  box-shadow: 0 0 30px var(--layer-color), 0 0 60px color-mix(in srgb, var(--layer-color) 30%, transparent);
+}
+.boot-layer-icon svg { width: 32px; height: 32px; }
+.boot-layer-name {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+}
+.boot-layer-tagline {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  max-width: 400px;
+}
+
+/* =========================================================
+   SCROLL CUE
+   ========================================================= */
+@keyframes scroll-cue {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50% { transform: translateY(8px); opacity: 1; }
+}
+.scroll-cue {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 50;
+  transition: opacity 600ms;
+}
+.scroll-cue.hidden { opacity: 0; pointer-events: none; }
+.scroll-cue-text {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+}
+.scroll-cue-arrow {
+  animation: scroll-cue 2s ease-in-out infinite;
+}
+.scroll-cue-arrow svg { width: 20px; height: 20px; stroke: var(--color-text-muted); }
+
+/* =========================================================
+   LIVING STACK SECTION
+   ========================================================= */
+.living-stack-section {
+  position: relative;
+  min-height: 100vh;
+  padding: calc(var(--header-height) + 3rem) 2rem 4rem;
+  display: flex;
+  justify-content: center;
+}
+.stack-layout {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 2rem;
+  max-width: 1200px;
+  width: 100%;
+}
+.progress-spine {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 4.5rem;
+}
+.progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-text-dim);
+  margin-bottom: 0;
+  cursor: pointer;
+  transition: all 200ms;
+  position: relative;
+  flex-shrink: 0;
+}
+.progress-dot:hover { transform: scale(1.5); }
+.progress-dot.active { transform: scale(1.8); }
+.progress-line {
+  width: 1px;
+  flex: 1;
+  min-height: 16px;
+  background: rgba(255,255,255,0.08);
+}
+
+.stack-main {
+  position: relative;
+}
+
+/* SVG dependency overlay */
+.dependency-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+.dep-line {
+  stroke: rgba(255,255,255,0.06);
+  stroke-width: 1;
+  fill: none;
+  transition: stroke 400ms, stroke-width 400ms, opacity 400ms;
+}
+.dep-line.highlighted {
+  stroke-width: 2;
+  opacity: 1;
+}
+.dep-line.dimmed { opacity: 0.03; }
+
+/* Stack container */
+.stack-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  z-index: 2;
+}
+
+/* Layer nodes */
+.layer-node {
+  position: relative;
+  height: var(--layer-height);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: var(--color-bg-surface);
+  transition: all var(--transition-smooth);
+  overflow: hidden;
+  z-index: 2;
+}
+.layer-node::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--layer-color);
+  opacity: 0.6;
+  transition: opacity 300ms, width 300ms;
+}
+.layer-node:hover {
+  border-color: color-mix(in srgb, var(--layer-color) 40%, transparent);
+  background: var(--color-bg-elevated);
+}
+.layer-node:hover::before { opacity: 1; width: 4px; }
+
+.layer-node.selected {
+  border-color: var(--layer-color);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--layer-color) 20%, transparent),
+              inset 0 0 30px color-mix(in srgb, var(--layer-color) 5%, transparent);
+  transform: scale(1.02);
+  z-index: 10;
+}
+.layer-node.selected::before { opacity: 1; width: 6px; }
+.layer-node.dimmed {
+  opacity: 0.15;
+  transform: scale(0.98);
+  pointer-events: none;
+}
+
+.layer-index {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--layer-color);
+  opacity: 0.7;
+  margin-right: 1rem;
+  min-width: 2rem;
+}
+.layer-icon-small {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  background: color-mix(in srgb, var(--layer-color) 10%, transparent);
+  flex-shrink: 0;
+}
+.layer-icon-small svg { width: 18px; height: 18px; }
+.layer-info { flex: 1; min-width: 0; }
+.layer-name {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.15rem;
+}
+.layer-brief {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.layer-tag {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--layer-color) 15%, transparent);
+  color: var(--layer-color);
+  margin-left: 1rem;
+  flex-shrink: 0;
+}
+
+/* Constraint field layers (8-10) */
+.layer-node.constraint-field {
+  border-style: dashed;
+  background: color-mix(in srgb, var(--layer-color) 4%, var(--color-bg-surface));
+}
+.layer-node.constraint-field::before { width: 0; }
+.layer-node.constraint-field .layer-tag {
+  background: transparent;
+  border: 1px dashed color-mix(in srgb, var(--layer-color) 40%, transparent);
+}
+
+/* Constraint separator */
+.constraint-separator {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+  color: var(--color-text-dim);
+}
+.constraint-separator-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(239,68,68,0.2), transparent);
+}
+.constraint-separator-text {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   SIDE KNOWLEDGE PANEL
+   ========================================================= */
+.side-panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms;
+}
+.side-panel-overlay.open { opacity: 1; pointer-events: auto; }
+
+.side-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(var(--panel-width), 90vw);
+  height: 100vh;
+  background: var(--color-bg-surface);
+  border-left: 1px solid rgba(255,255,255,0.08);
+  z-index: 201;
+  transform: translateX(100%);
+  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.side-panel.open { transform: translateX(0); }
+
+.panel-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  background: var(--color-bg-surface);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.panel-layer-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.panel-layer-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.panel-layer-name {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.panel-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 200ms;
+  font-size: 1.1rem;
+}
+.panel-close:hover {
+  background: rgba(255,255,255,0.05);
+  color: var(--color-text);
+}
+
+.panel-content { padding: 1.5rem; }
+.panel-section {
+  margin-bottom: 1.75rem;
+}
+.panel-section-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.5rem;
+}
+.panel-section-text {
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: var(--color-text);
+}
+.panel-section-text.dim { color: var(--color-text-muted); }
+
+.panel-deps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.panel-dep-tag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--color-text-muted);
+}
+
+.panel-callout {
+  padding: 1rem 1.25rem;
+  border-radius: 6px;
+  border-left: 3px solid;
+  margin-top: 0.75rem;
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+.panel-callout.builder {
+  background: rgba(132, 204, 22, 0.06);
+  border-color: var(--color-application);
+  color: color-mix(in srgb, var(--color-application) 80%, white);
+}
+.panel-callout.lab {
+  background: rgba(59, 130, 246, 0.06);
+  border-color: var(--color-inference);
+  color: color-mix(in srgb, var(--color-inference) 80%, white);
+}
+.panel-callout-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.3rem;
+  display: block;
+}
+
+/* =========================================================
+   BOTTLENECK SIMULATOR
+   ========================================================= */
+.simulator-section {
+  position: relative;
+  padding: 6rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.simulator-section h2 {
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+.simulator-intro {
+  text-align: center;
+  color: var(--color-text-muted);
+  max-width: 600px;
+  margin: 0 auto 3rem;
+  font-size: 0.9rem;
+}
+.simulator-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 3rem;
+  align-items: start;
+}
+@media (max-width: 960px) {
+  .simulator-grid { grid-template-columns: 1fr; }
+}
+
+/* Mini stack for simulator */
+.sim-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.sim-layer {
+  height: 44px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: var(--color-bg-surface);
+  transition: all 500ms ease-out;
+  position: relative;
+  overflow: hidden;
+}
+.sim-layer::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--layer-color);
+  opacity: 0.4;
+  transition: opacity 500ms, width 500ms;
+}
+.sim-layer.stressed {
+  border-color: var(--layer-color);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--layer-color) 25%, transparent);
+}
+.sim-layer.stressed::before { opacity: 1; width: 4px; }
+.sim-layer-name {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  flex: 1;
+}
+.sim-layer-bar {
+  width: 80px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.08);
+  overflow: hidden;
+  margin-left: auto;
+}
+.sim-layer-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--layer-color);
+  transition: width 500ms ease-out;
+  width: 0%;
+}
+@keyframes bottleneck-pulse {
+  0%, 100% { box-shadow: 0 0 16px color-mix(in srgb, var(--layer-color) 25%, transparent); }
+  50% { box-shadow: 0 0 28px color-mix(in srgb, var(--layer-color) 40%, transparent), 0 0 48px color-mix(in srgb, var(--layer-color) 15%, transparent); }
+}
+.sim-layer.bottleneck {
+  animation: bottleneck-pulse 1.5s ease-in-out infinite;
+  border-color: var(--layer-color);
+}
+
+.sim-readout {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  background: var(--color-bg-elevated);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.sim-readout-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.4rem;
+}
+.sim-readout-value {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+.sim-readout-explain {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+/* Sliders panel */
+.sim-sliders {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.sim-slider-group label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+}
+.sim-slider-name {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.sim-slider-value {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+}
+.sim-slider-range {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: var(--color-text-dim);
+  margin-top: 0.25rem;
+}
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.1);
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-text);
+  border: 2px solid var(--color-bg);
+  box-shadow: 0 0 6px rgba(255,255,255,0.2);
+  cursor: pointer;
+  transition: transform 150ms;
+}
+input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-text);
+  border: 2px solid var(--color-bg);
+  cursor: pointer;
+}
+
+
+/* Speaker quotes in panel */
+.panel-speakers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+.panel-speaker-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.02em;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--color-text-muted);
+  transition: all var(--transition-snap);
+}
+.panel-speaker-badge:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--color-text);
+}
+.panel-speaker-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.panel-quote {
+  position: relative;
+  padding: 1rem 1.25rem;
+  margin-top: 0.75rem;
+  background: rgba(255,255,255,0.03);
+  border-left: 2px solid var(--layer-color, var(--color-text-muted));
+  border-radius: 0 6px 6px 0;
+}
+.panel-quote-text {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--color-text);
+  font-style: italic;
+}
+.panel-quote-attr {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  margin-top: 0.5rem;
+  letter-spacing: 0.02em;
+}
+.panel-data-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+.panel-data-item {
+  padding: 0.6rem 0.8rem;
+  background: rgba(255,255,255,0.03);
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.panel-data-value {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+.panel-data-label {
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  margin-top: 0.15rem;
+}
+
+/* Speaker Constellation */
+.constellation-section {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+.constellation-section h2 { text-align: center; margin-bottom: 0.5rem; }
+.constellation-subtitle {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 2.5rem;
+}
+.constellation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+.constellation-card {
+  padding: 1.25rem;
+  background: var(--color-bg-surface);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  transition: all var(--transition-snap);
+}
+.constellation-card:hover {
+  border-color: rgba(255,255,255,0.12);
+  transform: translateY(-2px);
+}
+.constellation-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.constellation-card-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.constellation-card-name {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.constellation-card-role {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+  margin-bottom: 0.6rem;
+}
+.constellation-card-layers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.constellation-layer-tag {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.15rem 0.45rem;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.05);
+  color: var(--color-text-dim);
+}
+
+/* =========================================================
+   LESSON SECTION
+   ========================================================= */
+.lesson-section {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 6rem 2rem;
+}
+.lesson-header {
+  margin-bottom: 3rem;
+}
+.lesson-module-tag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-compute);
+  margin-bottom: 0.75rem;
+}
+.lesson-section h2 { margin-bottom: 1rem; }
+.lesson-opener {
+  font-size: 1.15rem;
+  line-height: 1.7;
+  color: var(--color-text);
+  border-left: 3px solid var(--color-silicon);
+  padding-left: 1.25rem;
+  margin-bottom: 2rem;
+}
+.lesson-body p {
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--color-text-muted);
+  margin-bottom: 1.5rem;
+}
+.lesson-body strong { color: var(--color-text); font-weight: 600; }
+.lesson-body h3 {
+  color: var(--color-text);
+  margin: 2.5rem 0 1rem;
+  font-size: 1.1rem;
+}
+
+/* Trace walkthrough */
+.trace-container {
+  background: var(--color-bg-surface);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 2rem;
+  margin: 2rem 0;
+}
+.trace-title {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: 1.5rem;
+}
+.trace-step {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  align-items: flex-start;
+}
+.trace-step:last-child { margin-bottom: 0; }
+.trace-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  margin-top: 2px;
+}
+.trace-step-content { flex: 1; }
+.trace-step-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+.trace-step-desc {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  line-height: 1.55;
+}
+.trace-connector {
+  width: 1px;
+  height: 12px;
+  margin-left: 13px;
+  margin-bottom: 0.5rem;
+  background: rgba(255,255,255,0.1);
+}
+
+/* Check for understanding cards */
+.check-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 2.5rem 0;
+}
+.check-card {
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 300ms;
+}
+.check-card:hover { border-color: rgba(255,255,255,0.15); }
+.check-card.flipped { border-color: var(--color-compute); }
+.check-card-front {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.check-card-question {
+  font-size: 0.88rem;
+  font-weight: 500;
+  flex: 1;
+}
+.check-card-flip-hint {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-dim);
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+.check-card-back {
+  padding: 0 1.5rem 1.25rem;
+  display: none;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 1rem;
+}
+.check-card.flipped .check-card-back { display: block; }
+.check-card.flipped .check-card-flip-hint { color: var(--color-compute); }
+.check-card-answer {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-compute);
+  margin-bottom: 0.4rem;
+}
+.check-card-explain {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  line-height: 1.55;
+}
+
+/* =========================================================
+   MODULE ROADMAP
+   ========================================================= */
+.roadmap-section {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 4rem 2rem 8rem;
+}
+.roadmap-section h2 {
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+.roadmap-subtitle {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 3rem;
+}
+.roadmap-list {
+  position: relative;
+  padding-left: 2.5rem;
+}
+.roadmap-list::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    var(--color-energy),
+    var(--color-silicon),
+    var(--color-compute),
+    var(--color-training),
+    var(--color-inference),
+    var(--color-application),
+    var(--color-security),
+    var(--color-economics),
+    var(--color-policy),
+    var(--color-text-muted),
+    var(--color-text-muted),
+    var(--color-text)
+  );
+  border-radius: 1px;
+}
+.roadmap-item {
+  position: relative;
+  padding: 1rem 0 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.roadmap-dot {
+  position: absolute;
+  left: -2.5rem;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 700;
+  z-index: 2;
+}
+.roadmap-item-text {
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+.roadmap-item.current .roadmap-item-text { color: var(--color-text); font-weight: 600; }
+.roadmap-item.future .roadmap-item-text { color: var(--color-text-muted); }
+.roadmap-item.current .roadmap-dot { box-shadow: 0 0 12px color-mix(in srgb, var(--dot-color) 40%, transparent); }
+.roadmap-tag-current {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  background: rgba(6, 182, 212, 0.15);
+  color: var(--color-compute);
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+.site-footer {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 3rem 2rem;
+  text-align: center;
+}
+.footer-text {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--color-text-dim);
+  letter-spacing: 0.05em;
+}
+
+/* =========================================================
+   SECTION DIVIDERS
+   ========================================================= */
+.section-divider {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 768px) {
+  :root { --panel-width: 100vw; --layer-height: 64px; }
+  .fixed-header { padding: 0 1rem; }
+  .header-nav { display: none; }
+  .stack-layout { grid-template-columns: 1fr; }
+  .progress-spine { display: none; }
+  .layer-node { padding: 0 1rem; }
+  .layer-tag { display: none; }
+  .layer-brief { display: none; }
+  .boot-layer-icon { width: 60px; height: 60px; }
+  .boot-layers-container { gap: 4rem; }
+  .simulator-grid { grid-template-columns: 1fr; }
+  .sim-stack { order: 2; }
+  .sim-sliders { order: 1; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     FIXED HEADER
+     ============================================================ -->
+<header class="fixed-header" role="banner">
+  <div class="header-title"><span>THE REWRITE</span> // Frontier Systems</div>
+  <nav>
+    <ul class="header-nav" role="navigation" aria-label="Main navigation">
+      <li><a href="#stack">Stack</a></li>
+      <li><a href="#simulator">Simulator</a></li>
+      <li><a href="#lesson">Lesson 1</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+    </ul>
+  </nav>
+</header>
+
+<!-- ============================================================
+     BOOT SEQUENCE
+     ============================================================ -->
+<section class="boot-sequence" aria-label="System boot sequence">
+  <div class="boot-spine" aria-hidden="true"></div>
+
+  <div class="boot-intro motion-boot" id="boot-intro">
+    <h1>Frontier AI Is a<br>Systems Problem</h1>
+    <p class="subtitle">Stanford CS153 &mdash; The infrastructure stack behind intelligence</p>
+  </div>
+
+  <div class="boot-layers-container" id="boot-layers">
+
+    <!-- Layer 1: Energy -->
+    <div class="boot-layer" data-boot="0" style="--layer-color: var(--color-energy)">
+      <div class="boot-layer-icon" style="border-color: var(--color-energy)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-energy)" stroke-width="2" stroke-linecap="round">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+        </svg>
+      </div>
+      <div class="boot-layer-name" style="color: var(--color-energy)">ENERGY &amp; POWER</div>
+      <div class="boot-layer-tagline">The physical floor. You cannot compute what you cannot power.</div>
+    </div>
+
+    <!-- Layer 2: Silicon -->
+    <div class="boot-layer" data-boot="1" style="--layer-color: var(--color-silicon)">
+      <div class="boot-layer-icon" style="border-color: var(--color-silicon)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-silicon)" stroke-width="2" stroke-linecap="round">
+          <rect x="4" y="4" width="16" height="16" rx="2"/>
+          <path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3"/>
+        </svg>
+      </div>
+      <div class="boot-layer-name" style="color: var(--color-silicon)">SILICON &amp; CHIPS</div>
+      <div class="boot-layer-tagline">Silicon determines the ceiling of what can be trained and how fast.</div>
+    </div>
+
+    <!-- Layer 3: Compute -->
+    <div class="boot-layer" data-boot="2" style="--layer-color: var(--color-compute)">
+      <div class="boot-layer-icon" style="border-color: var(--color-compute)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-compute)" stroke-width="2" stroke-linecap="round">
+          <rect x="2" y="6" width="20" height="12" rx="2"/>
+          <path d="M6 12h4M14 12h4M12 6v12"/>
+        </svg>
+      </div>
+      <div class="boot-layer-name" style="color: var(--color-compute)">COMPUTE &amp; CLUSTERS</div>
+      <div class="boot-layer-tagline">Raw chips without coordination is wasted silicon.</div>
+    </div>
+
+    <!-- Layer 4: Training -->
+    <div class="boot-layer" data-boot="3" style="--layer-color: var(--color-training)">
+      <div class="boot-layer-icon" style="border-color: var(--color-training)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-training)" stroke-width="2" stroke-linecap="round">
+          <path d="M4 19l4-4 4 4 4-8 4 4"/>
+          <path d="M4 15V5M4 5h16"/>
+        </svg>
+      </div>
+      <div class="boot-layer-name" style="color: var(--color-training)">TRAINING SYSTEMS</div>
+      <div class="boot-layer-tagline">Where capability is forged. Bad training wastes compute.</div>
+    </div>
+
+    <!-- Layer 5: Model -->
+    <div class="boot-layer" data-boot="4" style="--layer-color: var(--color-model)">
+      <div class="boot-layer-icon" style="border-color: var(--color-model)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-model)" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+        </svg>
+      </div>
+      <div class="boot-layer-name" style="color: var(--color-model)">MODEL ARCHITECTURE</div>
+      <div class="boot-layer-tagline">Determines what the model CAN learn, not what it DOES learn.</div>
+    </div>
+
+    <!-- Layer 6: Inference -->
+    <div class="boot-layer" data-boot="5" style="--layer-color: var(--color-inference)">
+      <div class="boot-layer-icon" style="border-color: var(--color-inference)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-inference)" stroke-width="2" stroke-linecap="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </div>
+      <div class="boot-layer-name" style="color: var(--color-inference)">INFERENCE &amp; SERVING</div>
+      <div class="boot-layer-tagline">Training is a one-time cost. Inference is the cost of every interaction.</div>
+    </div>
+
+    <!-- Layer 7: Application -->
+    <div class="boot-layer" data-boot="6" style="--layer-color: var(--color-application)">
+      <div class="boot-layer-icon" style="border-color: var(--color-application)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-application)" stroke-width="2" stroke-linecap="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <path d="M3 9h18M9 3v18"/>
+        </svg>
+      </div>
+      <div class="boot-layer-name" style="color: var(--color-application)">APPLICATIONS &amp; PRODUCT</div>
+      <div class="boot-layer-tagline">Where value reaches humans. Everything below exists to serve this layer.</div>
+    </div>
+
+    <!-- Constraint Fields -->
+    <div class="boot-layer" data-boot="7" style="--layer-color: var(--color-security)">
+      <div class="boot-layer-icon" style="border-color: var(--color-security)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-security)" stroke-width="2" stroke-linecap="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <div class="boot-layer-name" style="color: var(--color-security)">SECURITY &amp; SAFETY</div>
+      <div class="boot-layer-tagline">Constraint field. Safety failures cascade through every layer above.</div>
+    </div>
+
+    <div class="boot-layer" data-boot="8" style="--layer-color: var(--color-economics)">
+      <div class="boot-layer-icon" style="border-color: var(--color-economics)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-economics)" stroke-width="2" stroke-linecap="round">
+          <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+        </svg>
+      </div>
+      <div class="boot-layer-name" style="color: var(--color-economics)">ECONOMICS &amp; CAPITAL</div>
+      <div class="boot-layer-tagline">Constraint field. Capital allocation determines which layers get built.</div>
+    </div>
+
+    <div class="boot-layer" data-boot="9" style="--layer-color: var(--color-policy)">
+      <div class="boot-layer-icon" style="border-color: var(--color-policy)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-policy)" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+        </svg>
+      </div>
+      <div class="boot-layer-name" style="color: var(--color-policy)">POLICY &amp; GEOPOLITICS</div>
+      <div class="boot-layer-tagline">Constraint field. Policy shapes what can be built, where, and by whom.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Scroll cue -->
+<div class="scroll-cue" id="scroll-cue">
+  <span class="scroll-cue-text">Scroll to boot</span>
+  <div class="scroll-cue-arrow">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
+      <path d="M12 5v14M19 12l-7 7-7-7"/>
+    </svg>
+  </div>
+</div>
+
+<!-- ============================================================
+     SECTION DIVIDER
+     ============================================================ -->
+<div class="section-divider"></div>
+
+<!-- ============================================================
+     LIVING STACK
+     ============================================================ -->
+<section class="living-stack-section" id="stack" aria-label="Interactive frontier systems stack">
+  <div class="stack-layout">
+
+    <!-- Progress spine -->
+    <aside class="progress-spine" id="progress-spine" aria-label="Layer navigation"></aside>
+
+    <!-- Main stack -->
+    <div class="stack-main">
+      <h2 style="margin-bottom: 0.5rem;">The Frontier Stack</h2>
+      <p class="label" style="margin-bottom: 2rem;">Click any layer to explore &mdash; 10 interdependent systems</p>
+
+      <!-- SVG dependency lines -->
+      <svg class="dependency-svg" id="dep-svg" aria-hidden="true"></svg>
+
+      <div class="stack-container" id="stack-container">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ============================================================
+     BOTTLENECK SIMULATOR
+     ============================================================ -->
+<section class="simulator-section" id="simulator" aria-label="Bottleneck simulator">
+  <h2>Bottleneck Simulator</h2>
+  <p class="simulator-intro">Adjust the parameters and watch the stack respond. Every slider changes where pressure accumulates.</p>
+
+  <div class="simulator-grid">
+    <div>
+      <div class="sim-stack" id="sim-stack"></div>
+      <div class="sim-readout" id="sim-readout">
+        <div class="sim-readout-label">Current Bottleneck</div>
+        <div class="sim-readout-value" id="sim-bottleneck-name">--</div>
+        <div class="sim-readout-explain" id="sim-bottleneck-explain">Move the sliders to stress-test the stack.</div>
+      </div>
+    </div>
+    <div class="sim-sliders" id="sim-sliders"></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ============================================================
+     OPENING LESSON
+     ============================================================ -->
+<section class="lesson-section" id="lesson" aria-label="Lesson 1: Why Frontier AI Is a Systems Problem">
+  <div class="lesson-header">
+    <div class="lesson-module-tag">Module 01 / 12</div>
+    <h2>Why Frontier AI Is a Systems Problem</h2>
+  </div>
+
+  <div class="lesson-opener">
+    You've been told AI progress is about better models. That's roughly 15% of the story.
+  </div>
+
+  <div class="lesson-body">
+    <p>The frontier of artificial intelligence is not a single technology. It is a <strong>vertical stack of interdependent systems</strong>, each with its own physics, economics, and failure modes. A breakthrough in model architecture means nothing if the compute infrastructure cannot support training at scale. Cheaper inference means nothing if the silicon supply chain is bottlenecked at a single Taiwanese foundry.</p>
+
+    <p>This course maps the entire stack &mdash; from the power grid to policy frameworks &mdash; because <strong>the binding constraint shifts</strong>. In 2020, it was data. In 2022, it was compute. In 2024, it was energy and inference economics. By the time you ship a product, the bottleneck will have moved again. Knowing the full stack is how you anticipate where it moves.</p>
+
+    <h3>The Stack Dependency Argument</h3>
+
+    <p>Every layer in the frontier stack depends on the layer below it and constrains the layer above it. This is not a metaphor &mdash; it is a physical dependency chain. You cannot train a model without clusters. You cannot build clusters without chips. You cannot power chips without energy. Working backwards from the application layer through these dependencies is how systems engineers think about frontier AI.</p>
+
+    <p>But unlike a traditional software stack, frontier AI also has <strong>external constraint fields</strong> &mdash; safety requirements, capital markets, and geopolitics &mdash; that press against the stack from the outside, reshaping what is feasible at every layer. Ignoring these fields is how companies build technically brilliant products that cannot be deployed, funded, or legally operated.</p>
+
+    <h3>Worked Example: What Happens When You Send a Prompt?</h3>
+  </div>
+
+  <!-- Trace walkthrough -->
+  <div class="trace-container">
+    <div class="trace-title">Request trace: You &#8594; Claude &#8594; Response</div>
+
+    <div class="trace-step">
+      <div class="trace-dot" style="background: var(--color-application); color: var(--color-bg)">7</div>
+      <div class="trace-step-content">
+        <div class="trace-step-label" style="color: var(--color-application)">Application Layer</div>
+        <div class="trace-step-desc">You type a prompt in the interface. The client sends an HTTP request to an API endpoint. Authentication, rate limiting, content filtering happen here.</div>
+      </div>
+    </div>
+    <div class="trace-connector"></div>
+
+    <div class="trace-step">
+      <div class="trace-dot" style="background: var(--color-inference); color: var(--color-bg)">6</div>
+      <div class="trace-step-content">
+        <div class="trace-step-label" style="color: var(--color-inference)">Inference &amp; Serving</div>
+        <div class="trace-step-desc">A load balancer routes your request to an available GPU. The model weights (hundreds of GB) are already loaded in VRAM. Your tokens enter a batch queue. KV-cache manages context. Tokens are generated autoregressively &mdash; each one requires a full forward pass.</div>
+      </div>
+    </div>
+    <div class="trace-connector"></div>
+
+    <div class="trace-step">
+      <div class="trace-dot" style="background: var(--color-model); color: var(--color-bg)">5</div>
+      <div class="trace-step-content">
+        <div class="trace-step-label" style="color: var(--color-model)">Model Architecture</div>
+        <div class="trace-step-desc">The transformer processes your tokens through attention layers. Architecture decisions (context length, mixture-of-experts routing, layer count) determine quality and speed of the response you receive.</div>
+      </div>
+    </div>
+    <div class="trace-connector"></div>
+
+    <div class="trace-step">
+      <div class="trace-dot" style="background: var(--color-training); color: var(--color-bg)">4</div>
+      <div class="trace-step-content">
+        <div class="trace-step-label" style="color: var(--color-training)">Training Systems</div>
+        <div class="trace-step-desc">The model's capability was shaped months ago. Pre-training on trillions of tokens, RLHF alignment, safety tuning &mdash; all baked into the weights now being used. Training decisions you never see determine what the model can do.</div>
+      </div>
+    </div>
+    <div class="trace-connector"></div>
+
+    <div class="trace-step">
+      <div class="trace-dot" style="background: var(--color-compute); color: var(--color-bg)">3</div>
+      <div class="trace-step-content">
+        <div class="trace-step-label" style="color: var(--color-compute)">Compute &amp; Clusters</div>
+        <div class="trace-step-desc">Your inference runs on one node in a massive cluster. The cluster's scheduling software decided which GPU handles your request. Network fabric connects thousands of GPUs for training. Your one request uses a fraction of one chip.</div>
+      </div>
+    </div>
+    <div class="trace-connector"></div>
+
+    <div class="trace-step">
+      <div class="trace-dot" style="background: var(--color-silicon); color: var(--color-bg)">2</div>
+      <div class="trace-step-content">
+        <div class="trace-step-label" style="color: var(--color-silicon)">Silicon &amp; Chips</div>
+        <div class="trace-step-desc">The GPU running your inference was fabricated at TSMC months ago. Its architecture (H100, B200, TPU v5) determines the ops-per-second ceiling. Chip availability determined how many GPUs were allocated to serving vs. training.</div>
+      </div>
+    </div>
+    <div class="trace-connector"></div>
+
+    <div class="trace-step">
+      <div class="trace-dot" style="background: var(--color-energy); color: var(--color-bg)">1</div>
+      <div class="trace-step-content">
+        <div class="trace-step-label" style="color: var(--color-energy)">Energy &amp; Power</div>
+        <div class="trace-step-desc">The data center powering that GPU draws from the regional grid. Cooling systems keep the chip at operating temperature. Your single request consumed roughly 0.001-0.01 kWh &mdash; multiplied by millions of daily requests, this is why hyperscalers are signing nuclear power agreements.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lesson-body">
+    <p>Every prompt you send traverses this entire stack in milliseconds. The latency you experience, the quality of the response, the cost to the provider &mdash; all are determined by decisions made at every layer. <strong>Understanding the stack is understanding the real constraints of what you can build.</strong></p>
+
+    <h3>Check for Understanding</h3>
+  </div>
+
+  <!-- Flip cards -->
+  <div class="check-cards">
+    <div class="check-card" onclick="this.classList.toggle('flipped')">
+      <div class="check-card-front">
+        <div class="check-card-question">The primary bottleneck in frontier AI is:</div>
+        <div class="check-card-flip-hint">Tap to reveal</div>
+      </div>
+      <div class="check-card-back">
+        <div class="check-card-answer">Neither &mdash; it shifts.</div>
+        <div class="check-card-explain">The binding constraint has migrated from data (2020) to compute (2022) to energy and inference costs (2024). Systems thinking means tracking where the bottleneck is moving, not assuming it stays fixed. This is why you need to understand every layer, not just your own.</div>
+      </div>
+    </div>
+
+    <div class="check-card" onclick="this.classList.toggle('flipped')">
+      <div class="check-card-front">
+        <div class="check-card-question">Inference costs are primarily determined by:</div>
+        <div class="check-card-flip-hint">Tap to reveal</div>
+      </div>
+      <div class="check-card-back">
+        <div class="check-card-answer">Both &mdash; model size AND hardware + optimization.</div>
+        <div class="check-card-explain">A larger model requires more compute per token, but hardware choice (GPU architecture, quantization, batching strategy) and optimization (KV-caching, speculative decoding, routing) determine the actual cost. You can cut inference costs 10x through engineering without changing the model.</div>
+      </div>
+    </div>
+
+    <div class="check-card" onclick="this.classList.toggle('flipped')">
+      <div class="check-card-front">
+        <div class="check-card-question">A one-person frontier lab should focus on:</div>
+        <div class="check-card-flip-hint">Tap to reveal</div>
+      </div>
+      <div class="check-card-back">
+        <div class="check-card-answer">Application layer + fine-tuning.</div>
+        <div class="check-card-explain">Pre-training is a $100M+ capital expenditure. Inference infrastructure is a hyperscaler game. But the application layer &mdash; where domain knowledge meets UX meets model capability &mdash; is where a single builder with deep expertise can create more value than a team without it. Fine-tuning is your leverage point into the stack below.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lesson-body">
+    <p style="margin-top: 2rem;">This was the first module. The remaining eleven will go deeper into each layer &mdash; who operates it, what breaks, and what it means for what you build. The next module begins with the physical foundation: <strong>energy, silicon, and the constraints you cannot software your way around</strong>.</p>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+
+<!-- ============================================================
+     SPEAKER CONSTELLATION
+     ============================================================ -->
+<section class="constellation-section" id="speakers" aria-label="Speaker constellation">
+  <h2>Speaker Constellation</h2>
+  <p class="constellation-subtitle">13 builders. Every layer of the stack. From the power grid to the policy layer.</p>
+  <div class="constellation-grid" id="constellation-grid"></div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ============================================================
+     MODULE ROADMAP
+     ============================================================ -->
+<section class="roadmap-section" id="roadmap" aria-label="Course module roadmap">
+  <h2>Module Roadmap</h2>
+  <p class="roadmap-subtitle">12 modules. From the power grid to the policy layer.</p>
+  <div class="roadmap-list" id="roadmap-list"></div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="site-footer">
+  <p class="footer-text">THE REWRITE // Frontier Systems &mdash; Stanford CS153 &mdash; 2026</p>
+</footer>
+
+<!-- ============================================================
+     SIDE KNOWLEDGE PANEL
+     ============================================================ -->
+<div class="side-panel-overlay" id="panel-overlay"></div>
+<aside class="side-panel" id="side-panel" role="complementary" aria-label="Layer knowledge panel">
+  <div class="panel-header">
+    <div class="panel-layer-badge">
+      <div class="panel-layer-dot" id="panel-dot"></div>
+      <div class="panel-layer-name" id="panel-name"></div>
+    </div>
+    <button class="panel-close" id="panel-close" aria-label="Close panel">&#215;</button>
+  </div>
+  <div class="panel-content" id="panel-content"></div>
+</aside>
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+(function() {
+  'use strict';
+
+  /* ==========================================================
+     DATA: Layer definitions
+     ========================================================== */
+  var LAYERS = [
+    {
+      id: 'energy', name: 'Energy & Power',
+      brief: 'Data centers, power infrastructure, cooling',
+      color: 'var(--color-energy)', colorHex: '#f59e0b', tag: 'L1', constraint: false,
+      panel: {
+        what: 'Data centers consume 1-2% of global electricity. Saudi Arabia is building 1.5-2 GW of sovereign AI compute capacity. 50% of data center power is "tax" \u2014 cooling, networking, overhead. Only half does useful work. Digital infrastructure cycles every ~2.8 years; physical infrastructure every ~6.3 years.',
+        why: 'Energy is the physical floor. You cannot compute what you cannot power. Every other layer is ultimately bounded by available watts. Sovereign AI is an energy problem before it is a compute problem.',
+        depends: ['Grid capacity', 'Renewable contracts', 'Cooling infrastructure', 'Geographic proximity to power'],
+        breaks: 'Power reliability, thermal limits, grid allocation politics, water scarcity for cooling, permitting delays. The 50% power tax makes facility efficiency as impactful as chip improvements.',
+        who: 'Utilities, hyperscalers (Google, Microsoft, Amazon), sovereign wealth funds (Saudi PIF), nuclear startups.',
+        builder: 'Your inference costs have an energy floor you cannot optimize away. Cloud pricing is an energy derivative.',
+        lab: 'US-West and Nordics are cheaper; Singapore is expensive. Every watt saved on cooling is a watt for inference.',
+        speakers: [
+          { name: 'Abdullah Alswaha', role: 'Saudi Minister of IT', color: '#f59e0b' },
+          { name: 'Anjney Midha', role: 'AMP PBC', color: '#06b6d4' }
+        ],
+        quotes: [
+          { text: '50% of data center power is tax. Cooling, networking, overhead. When I say 1.5 to 2 gigawatts, only half does useful work.', attr: 'Abdullah Alswaha, Saudi Arabia' },
+          { text: 'Digital era infrastructure cycles about every 2.8 years. Physical infrastructure about every 6.3 years. That mismatch is where fortunes are made and lost.', attr: 'Anjney Midha, AMP PBC' }
+        ],
+        dataPoints: [
+          { value: '1.5-2 GW', label: 'Saudi sovereign compute' },
+          { value: '50%', label: 'Power lost to overhead' },
+          { value: '~6.3yr', label: 'Physical infra cycle' },
+          { value: '$20-30M', label: 'Cost per MW w/ compute' }
+        ]
+      }
+    },
+    {
+      id: 'silicon', name: 'Silicon & Chips',
+      brief: 'GPUs, TPUs, ASICs, fabrication bottleneck',
+      color: 'var(--color-silicon)', colorHex: '#8b5cf6', tag: 'L2', constraint: false,
+      panel: {
+        what: 'GPUs (NVIDIA H100/B200), TPUs, custom ASICs. The memory wall is the real bottleneck: HBM is 40% of GPU cost. Interconnect bandwidth was artificially stagnant \u2014 nobody asked for more until AI training created demand. Nvidia acquiring Mellanox restarted exponential improvement.',
+        why: 'Silicon determines the ceiling of what can be trained. If you are building sovereign compute, you are really building a memory procurement strategy.',
+        depends: ['Energy supply', 'TSMC fabrication capacity', 'HBM supply chain (SK Hynix)', 'Advanced packaging'],
+        breaks: 'TSMC concentration (single point of failure), export controls, Von Neumann bottleneck \u2014 60,000x transistor growth but fundamental architecture unchanged.',
+        who: 'NVIDIA, TSMC, AMD, Google (TPU), SK Hynix (HBM), Broadcom, Groq, Cerebras.',
+        builder: 'H100s at $1.73/hr and the price is going UP. We are in a pre-standardization era for compute.',
+        lab: 'Use inference-optimized chips. Training is rented, not owned. Apple M-series differentiates on memory bandwidth.',
+        speakers: [
+          { name: 'Abdullah Alswaha', role: 'Saudi Minister of IT', color: '#f59e0b' },
+          { name: 'Ben Mann', role: 'Anthropic', color: '#8b5cf6' },
+          { name: 'Anjney Midha', role: 'AMP PBC', color: '#06b6d4' }
+        ],
+        quotes: [
+          { text: 'HBM is 40% of the cost of a GPU. If you are building sovereign compute, you are really building a memory procurement strategy.', attr: 'Abdullah Alswaha, Saudi Arabia' },
+          { text: 'Cloud providers said we have 30 gigabit interconnects and nobody is asking for more. Then Nvidia acquires Mellanox with 400 gigabit interconnects.', attr: 'Ben Mann, Anthropic' }
+        ],
+        dataPoints: [
+          { value: '40%', label: 'GPU cost from HBM' },
+          { value: '$1.73/hr', label: 'H100 rental (rising)' },
+          { value: '60,000x', label: 'Transistor growth in 20yr' },
+          { value: '400 Gb/s', label: 'Mellanox interconnect' }
+        ]
+      }
+    },
+    {
+      id: 'compute', name: 'Compute & Clusters',
+      brief: 'GPU clusters, networking fabric, coordination',
+      color: 'var(--color-compute)', colorHex: '#06b6d4', tag: 'L3', constraint: false,
+      panel: {
+        what: 'Interconnected GPU clusters (10K-100K+). Palantir: ~5,000 microservices across ~1,000 environments, ~100 airgapped. Cursor: 1-2K H100s, 100M calls/day. Compute is not yet fungible \u2014 no standard units, no standard pricing.',
+        why: 'Raw chips without coordination is wasted silicon. When all serving nodes die, recovery nodes get overwhelmed by queued traffic before they can become healthy.',
+        depends: ['Silicon supply', 'Network bandwidth (400Gb/s+)', 'Scheduling software', 'Reliability engineering'],
+        breaks: 'Cold start cascades, GPU failures, network bottlenecks. No container at Palantir lives longer than 72 hours \u2014 defense-grade immutable infrastructure.',
+        who: 'AWS, GCP, Azure, CoreWeave, Palantir (airgapped), sovereign compute programs.',
+        builder: 'Not chips \u2014 coordinated chips. Reserved capacity > spot pricing for production.',
+        lab: 'Use managed inference APIs. The best way to scale a database is not to have one.',
+        speakers: [
+          { name: 'Shyam Sankar', role: 'CTO, Palantir', color: '#06b6d4' },
+          { name: 'Sualeh Asif', role: 'CTO, Cursor', color: '#3b82f6' },
+          { name: 'Anjney Midha', role: 'AMP PBC', color: '#06b6d4' }
+        ],
+        quotes: [
+          { text: 'We create and destroy about 20,000 pods per hour. No container lives longer than 72 hours.', attr: 'Shyam Sankar, Palantir' },
+          { text: 'We do about 100 million model calls a day on custom models and about a billion documents a day in indexing.', attr: 'Sualeh Asif, Cursor' },
+          { text: 'Compute is not yet a fungible commodity. No common units, no standard delivery interfaces, no metering.', attr: 'Anjney Midha, AMP PBC' }
+        ],
+        dataPoints: [
+          { value: '5,000', label: 'Palantir microservices' },
+          { value: '100M/day', label: 'Cursor model calls' },
+          { value: '20K/hr', label: 'Pod churn rate' },
+          { value: '100K/wk', label: 'Software upgrades' }
+        ]
+      }
+    },
+    {
+      id: 'training', name: 'Training Systems',
+      brief: 'Distributed training, data pipelines, RLHF',
+      color: 'var(--color-training)', colorHex: '#e8e4dc', tag: 'L4', constraint: false,
+      panel: {
+        what: 'Distributed training, data pipelines, alignment (RLHF, Constitutional AI). RL consumes ~50% of total training compute. On Llama: 6 people did data, 1 wrote training code. Data quality is the actual bottleneck.',
+        why: 'The Chinchilla trap: compute-optimal is NOT deployment-optimal. Train 10x beyond. A flipped negative sign on the reward model made it get "more and more evil." Training is like having a patient on life support.',
+        depends: ['Compute clusters', 'Data quality and diversity', 'Alignment techniques', 'Human evaluators'],
+        breaks: 'Loss spikes (roll back and re-run), bugs invisible at small scale (float16/32 identical at 7B, divergent at 70B after 2 weeks), reward hacking.',
+        who: 'Anthropic, OpenAI, DeepMind, Meta FAIR, Mistral (~40 researchers), xAI.',
+        builder: 'Fine-tuning even a few hundred examples can beat frontier APIs for your domain. Post-training is the equalizer.',
+        lab: 'Product usage data is an unexpectedly powerful training signal. Ship early \u2014 your product is your training pipeline.',
+        speakers: [
+          { name: 'Ben Mann', role: 'Anthropic', color: '#8b5cf6' },
+          { name: 'Guillaume Lample', role: 'Mistral', color: '#f97316' },
+          { name: 'Andreas Blattmann', role: 'Black Forest Labs', color: '#84cc16' },
+          { name: 'Anjney Midha', role: 'AMP PBC', color: '#06b6d4' }
+        ],
+        quotes: [
+          { text: 'We had a bug where we flipped a negative sign on the reward and the model was seeming to get more and more evil.', attr: 'Ben Mann, Anthropic' },
+          { text: 'We had one guy writing the training code and six people doing the data. The data is the most important thing.', attr: 'Guillaume Lample, Mistral' },
+          { text: 'RL is now consuming almost as much compute as the rest of the training pipeline combined.', attr: 'Anjney Midha, AMP PBC' }
+        ],
+        dataPoints: [
+          { value: '13 orders', label: 'Scaling law validity' },
+          { value: '6:1', label: 'Data vs code engineers' },
+          { value: '2,800', label: 'A100s for Llama' },
+          { value: '~50%', label: 'RL share of compute' }
+        ]
+      }
+    },
+    {
+      id: 'model', name: 'Model Architecture',
+      brief: 'Transformers, MoE, diffusion, multimodal',
+      color: 'var(--color-model)', colorHex: '#f0ece4', tag: 'L5', constraint: false,
+      panel: {
+        what: 'Transformers, MoE, diffusion/flow matching. Autoregressive iterates along data (token by token). Diffusion iterates orthogonal (noise to clean). The future combines both. Models may have latent capabilities nobody has prompted correctly.',
+        why: 'Scaling laws held across 13 orders of magnitude. Most-used models today are 7B or 3B \u2014 nobody predicted that when GPT-3 launched at 175B.',
+        depends: ['Training capacity', 'Compute budget', 'Research breakthroughs', 'Hardware co-design'],
+        breaks: 'Chinchilla trap, diminishing returns, latent diffusion compressed generation by orders of magnitude \u2014 paradigm shifts reset the landscape.',
+        who: 'Anthropic, OpenAI, DeepMind, Mistral, Black Forest Labs (~100 people, $3B+ valuation).',
+        builder: 'Evaluate models on YOUR task, not benchmarks. Post-training innovation does not need massive GPUs.',
+        lab: 'Elicitation is free leverage. Chain-of-thought and creative prompting can dramatically change quality.',
+        speakers: [
+          { name: 'Andreas Blattmann', role: 'Black Forest Labs', color: '#84cc16' },
+          { name: 'Guillaume Lample', role: 'Mistral', color: '#f97316' },
+          { name: 'Ben Mann', role: 'Anthropic', color: '#8b5cf6' }
+        ],
+        quotes: [
+          { text: 'Autoregressive models iterate along the data dimension. Diffusion models iterate orthogonal to the data. Fundamentally different strategies.', attr: 'Andreas Blattmann, Black Forest Labs' },
+          { text: 'Post-training will be quite different. Any startup has as much chance as any company.', attr: 'Guillaume Lample, Mistral' },
+          { text: 'Scaling laws held across 13 orders of magnitude. Very rare even in the physical world.', attr: 'Ben Mann, Anthropic' }
+        ],
+        dataPoints: [
+          { value: '7B-3B', label: 'Most-used model sizes' },
+          { value: '50\u21924', label: 'Diffusion distillation' },
+          { value: '~100', label: 'BFL team size' },
+          { value: '$3B+', label: 'BFL valuation' }
+        ]
+      }
+    },
+    {
+      id: 'inference', name: 'Inference & Serving',
+      brief: 'Serving, latency, batching, caching, quantization',
+      color: 'var(--color-inference)', colorHex: '#3b82f6', tag: 'L6', constraint: false,
+      panel: {
+        what: 'Model serving, latency optimization, batching, KV-cache. Cursor crashed providers at 30-40M tokens/min. ElevenLabs: ~300ms voice response with fused models. AI workloads invert compute: fast request, slow response.',
+        why: 'Inference is the recurring cost of every interaction. Your unit economics live here. No one has good reliability at frontier scale.',
+        depends: ['Model size', 'Hardware (GPU/TPU)', 'Traffic patterns', 'Latency requirements'],
+        breaks: 'Cold start cascades, provider unreliability, quality degradation from quantization. Cascaded pipelines: reliable but slow. Fused: fast but fragile.',
+        who: 'Cloud providers, Groq, Cerebras, Fireworks, Cursor (1-2K H100s), ElevenLabs, Vercel.',
+        builder: 'Design for provider failure from day one. A 2x reduction in inference cost can flip your unit economics.',
+        lab: 'Optimize prompts before infrastructure. Use the cheapest model per use case. Cache aggressively.',
+        speakers: [
+          { name: 'Sualeh Asif', role: 'CTO, Cursor', color: '#3b82f6' },
+          { name: 'Mati Staniszewski', role: 'CEO, ElevenLabs', color: '#84cc16' },
+          { name: 'Guillermo Rauch', role: 'CEO, Vercel', color: '#e8e4dc' }
+        ],
+        quotes: [
+          { text: 'No one has good reliability. We crashed them at 30-40 million tokens a minute. Their caches fail, their rate limits break.', attr: 'Sualeh Asif, Cursor' },
+          { text: 'Fused models respond in roughly 300ms. But you sacrifice on the reliability piece.', attr: 'Mati Staniszewski, ElevenLabs' },
+          { text: 'If you are IO-bound waiting on DeepSeek R1 to think, we intelligently saturate that allocated compute.', attr: 'Guillermo Rauch, Vercel' }
+        ],
+        dataPoints: [
+          { value: '30-40M', label: 'Tokens/min crashed providers' },
+          { value: '~300ms', label: 'ElevenLabs fused latency' },
+          { value: '20K/sec', label: 'Cursor autocomplete calls' },
+          { value: '1-2K', label: 'Cursor H100 fleet' }
+        ]
+      }
+    },
+    {
+      id: 'application', name: 'Applications & Product',
+      brief: 'Agents, assistants, creative tools, code gen, voice',
+      color: 'var(--color-application)', colorHex: '#84cc16', tag: 'L7', constraint: false,
+      panel: {
+        what: 'ElevenLabs: $430M ARR in ~36 months. Anthropic: 10x revenue in one year, 10x in coding in 3 months. Vercel v0: doubled revenue 3x in 14-20 days. Reddit Answers: built in 90 days. For 90% of companies, a pre-trained checkpoint is unusable.',
+        why: 'Where value reaches humans. Everything below exists to serve this layer. A single builder with deep domain expertise creates more value than a team without it.',
+        depends: ['Inference quality and cost', 'Model capabilities', 'UX design', 'Domain knowledge'],
+        breaks: 'Hallucination undermining trust, latency killing UX, cost making business models impossible. The deployment gap is enormous.',
+        who: 'Cursor, ElevenLabs ($430M ARR), Vercel (v0), Reddit, startups, solo builders.',
+        builder: 'This is YOUR layer. ElevenLabs teams are <10 people with full ownership. Ship the product, not the model.',
+        lab: 'The model is a commodity; your understanding of the user is the moat. 90 days is enough to ship.',
+        speakers: [
+          { name: 'Mati Staniszewski', role: 'CEO, ElevenLabs', color: '#84cc16' },
+          { name: 'Guillermo Rauch', role: 'CEO, Vercel', color: '#e8e4dc' },
+          { name: 'Sualeh Asif', role: 'CTO, Cursor', color: '#3b82f6' },
+          { name: 'Guillaume Lample', role: 'Mistral', color: '#f97316' },
+          { name: 'Ben Mann', role: 'Anthropic', color: '#8b5cf6' }
+        ],
+        quotes: [
+          { text: 'We crossed 2025 at 330 million in revenue and this quarter added over 100 million in ARR. Now over 430.', attr: 'Mati Staniszewski, ElevenLabs' },
+          { text: 'v0 basically doubled revenue three times in 14 to 20 days.', attr: 'Guillermo Rauch, Vercel' },
+          { text: 'For 90% of companies, if you give them a pre-trained checkpoint, they will not be able to use it.', attr: 'Guillaume Lample, Mistral' },
+          { text: 'APIs are forever. Once you release an API, companies depend on it.', attr: 'Ben Mann, Anthropic' }
+        ],
+        dataPoints: [
+          { value: '$430M', label: 'ElevenLabs ARR (36mo)' },
+          { value: '10x', label: 'Anthropic revenue (1yr)' },
+          { value: '90 days', label: 'Reddit Answers build' },
+          { value: '3x/20d', label: 'v0 revenue doubling' }
+        ]
+      }
+    },
+    {
+      id: 'security', name: 'Security & Safety',
+      brief: 'Alignment, red-teaming, content filtering, trust',
+      color: 'var(--color-security)', colorHex: '#ef4444', tag: 'CF', constraint: true,
+      panel: {
+        what: 'Thorn: 200B files/year for CSAM detection across 60+ companies. Okta: 10B authentications/month. No clear cybersecurity law \u2014 regulation by enforcement. Open-source model releases directly caused measurable CSAM spikes.',
+        why: 'Safety failures cascade through every layer. A CSO was personally prosecuted. Okta was hacked twice and rebuilt its entire culture. The CSO role is becoming untenable.',
+        pressure: 'Training (alignment, RLAIF), Inference (real-time filtering), Applications (trust, moderation).',
+        breaks: 'Jailbreaks, data poisoning, CSO liability crisis, content moderator mental health. Thorn designs UX to protect reviewers from trauma.',
+        who: 'Anthropic (RSP), Thorn (60+ companies), Okta (1B users/month), AI Safety Institutes.',
+        builder: 'Safety work can become your commercial moat \u2014 Anthropic RLAIF was meant for safety but became the product differentiator.',
+        speakers: [
+          { name: 'Joe Sullivan', role: 'ex-Cloudflare CSO', color: '#ef4444' },
+          { name: 'Julie Cordua', role: 'CEO, Thorn', color: '#ef4444' },
+          { name: 'Todd McKinnon', role: 'CEO, Okta', color: '#ef4444' },
+          { name: 'Ben Mann', role: 'Anthropic', color: '#8b5cf6' }
+        ],
+        quotes: [
+          { text: 'I was charged with obstruction of justice. I did not think I did anything wrong, so I went to trial.', attr: 'Joe Sullivan, ex-Cloudflare CSO' },
+          { text: 'We processed about 200 billion files. The predictive models find content the world has never seen.', attr: 'Julie Cordua, Thorn' },
+          { text: 'We did not change our culture fast enough. We should have changed it five years ago.', attr: 'Todd McKinnon, Okta' }
+        ],
+        dataPoints: [
+          { value: '200B', label: 'Thorn files/year' },
+          { value: '10B', label: 'Okta auths/month' },
+          { value: '60+', label: 'Companies using Thorn' },
+          { value: '<24hr', label: 'Log4J patch (all envs)' }
+        ]
+      }
+    },
+    {
+      id: 'economics', name: 'Economics & Capital',
+      brief: 'Training costs, unit economics, venture funding',
+      color: 'var(--color-economics)', colorHex: '#94a3b8', tag: 'CF', constraint: true,
+      panel: {
+        what: 'Training: $100M-$1B+. Anthropic needed $500M for first milestone. GPU rental $1.73/hr and rising. Saudi: $40-60B in sovereign compute. ElevenLabs pricing: capture 1/10th of value delivered.',
+        why: 'Capital determines which layers get built. Compute is pre-standardization \u2014 no fungible units. Digital cycles 2.8yr vs physical 6.3yr.',
+        pressure: 'All layers \u2014 from energy ($B in data centers) to application monetization.',
+        breaks: 'Unsustainable burn rates, 22 intros / 21 rejections reality, winner-take-all dynamics.',
+        who: 'VCs, sovereign wealth funds, hyperscalers, ElevenLabs ($1M revenue per employee).',
+        builder: 'Capital efficiency is survival. Revenue per employee is the metric. Raise for distribution, not infrastructure.',
+        speakers: [
+          { name: 'Anjney Midha', role: 'AMP PBC', color: '#06b6d4' },
+          { name: 'Abdullah Alswaha', role: 'Saudi Minister of IT', color: '#f59e0b' },
+          { name: 'Mati Staniszewski', role: 'CEO, ElevenLabs', color: '#84cc16' },
+          { name: 'Ben Mann', role: 'Anthropic', color: '#8b5cf6' }
+        ],
+        quotes: [
+          { text: 'H100s are at $1.73 an hour and the price is going up, not down. We are in a pre-standardization era for compute.', attr: 'Anjney Midha, AMP PBC' },
+          { text: 'Think about the value you deliver and work backwards. Never from cost. Capture one-tenth of what you delivered.', attr: 'Mati Staniszewski, ElevenLabs' },
+          { text: '$135 billion digital economy growing by 60% in 7 years.', attr: 'Abdullah Alswaha, Saudi Arabia' }
+        ],
+        dataPoints: [
+          { value: '$500M', label: 'Anthropic first milestone' },
+          { value: '22/21', label: 'Intros vs rejections' },
+          { value: '~$1M', label: 'ElevenLabs rev/employee' },
+          { value: '$40-60B', label: 'Saudi compute investment' }
+        ]
+      }
+    },
+    {
+      id: 'policy', name: 'Policy & Geopolitics',
+      brief: 'Export controls, sovereign AI, regulation',
+      color: 'var(--color-policy)', colorHex: '#f97316', tag: 'CF', constraint: true,
+      panel: {
+        what: 'Export controls, EU AI Act (specs in debate), Cloud Act (US gov accesses data on any US-company server globally), sovereign AI movements. Saudi: "no model religion."',
+        why: 'Policy shapes what can be built, where, by whom. Closed models for non-sensitive contexts; sovereign contexts need local open-source.',
+        pressure: 'Silicon (export controls), Training (data regulation), Deployment (EU AI Act, sovereignty).',
+        breaks: 'Regulatory fragmentation, compliance cost, open-source releases caused safety externalities. The open/closed tension is unresolved.',
+        who: 'US BIS, EU Commission, Saudi Arabia (Vision 2030), Mistral (European sovereignty), Thorn.',
+        builder: 'Regulation creates moats and barriers. Companies that solve compliance become infrastructure.',
+        speakers: [
+          { name: 'Abdullah Alswaha', role: 'Saudi Minister of IT', color: '#f59e0b' },
+          { name: 'Anjney Midha', role: 'AMP PBC', color: '#06b6d4' },
+          { name: 'Guillaume Lample', role: 'Mistral', color: '#f97316' },
+          { name: 'Julie Cordua', role: 'CEO, Thorn', color: '#ef4444' }
+        ],
+        quotes: [
+          { text: 'We have no model religion. We invested in Mistral, work with OpenAI, Google, Meta. The goal is to ensure we have options.', attr: 'Abdullah Alswaha, Saudi Arabia' },
+          { text: 'The US government can access data on US-company servers globally. That is driving real demand for sovereign infrastructure.', attr: 'Anjney Midha, AMP PBC' },
+          { text: 'There is no big tech in Europe.', attr: 'Guillaume Lample, Mistral' }
+        ],
+        dataPoints: [
+          { value: '250x', label: 'China vs US shipbuilding' },
+          { value: '381K', label: 'Saudi tech workforce' },
+          { value: '7/15', label: 'MENA unicorns from Saudi' },
+          { value: '$2.73T', label: 'Stanford ecosystem value' }
+        ]
+      }
+    }
+  ];
+
+
+  /* ==========================================================
+     BOOT SEQUENCE: Intersection Observer
+     ========================================================== */
+  function initBootSequence() {
+    var bootIntro = document.getElementById('boot-intro');
+    var bootLayers = document.querySelectorAll('.boot-layer');
+    var scrollCue = document.getElementById('scroll-cue');
+    var cueHidden = false;
+
+    // Activate intro on load
+    requestAnimationFrame(function() {
+      setTimeout(function() { bootIntro.classList.add('active'); }, 300);
+    });
+
+    // Stagger boot layers on scroll via IntersectionObserver
+    var bootObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var layer = entry.target;
+          var index = parseInt(layer.getAttribute('data-boot'), 10);
+          // Stagger: each subsequent layer triggers slightly later
+          setTimeout(function() {
+            layer.classList.add('visible');
+          }, 80);
+          bootObserver.unobserve(layer);
+        }
+      });
+    }, { threshold: 0.25, rootMargin: '0px 0px -10% 0px' });
+
+    bootLayers.forEach(function(layer) { bootObserver.observe(layer); });
+
+    // Hide scroll cue after first scroll
+    window.addEventListener('scroll', function onFirstScroll() {
+      if (!cueHidden && window.scrollY > 100) {
+        scrollCue.classList.add('hidden');
+        cueHidden = true;
+        window.removeEventListener('scroll', onFirstScroll);
+      }
+    });
+  }
+
+  /* ==========================================================
+     LIVING STACK: Render layers
+     ========================================================== */
+  var selectedLayerIndex = -1;
+
+  var LAYER_ICONS = {
+    energy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
+    silicon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3"/></svg>',
+    compute: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 12h4M14 12h4"/></svg>',
+    training: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19l4-4 4 4 4-8 4 4"/><path d="M4 15V5M4 5h16"/></svg>',
+    model: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg>',
+    inference: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>',
+    application: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>',
+    security: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+    economics: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>',
+    policy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>'
+  };
+
+  function renderStack() {
+    var container = document.getElementById('stack-container');
+    var spine = document.getElementById('progress-spine');
+    var html = '';
+    var spineHtml = '';
+
+    LAYERS.forEach(function(layer, i) {
+      // Insert constraint separator before index 7
+      if (i === 7) {
+        html += '<div class="constraint-separator">' +
+          '<div class="constraint-separator-line"></div>' +
+          '<div class="constraint-separator-text">External Constraint Fields</div>' +
+          '<div class="constraint-separator-line"></div></div>';
+      }
+
+      var cf = layer.constraint ? ' constraint-field' : '';
+      html += '<div class="layer-node' + cf + '" data-layer="' + i + '" style="--layer-color:' + layer.color + '" tabindex="0" role="button" aria-label="' + layer.name + '">' +
+        '<span class="layer-index">' + layer.tag + '</span>' +
+        '<div class="layer-icon-small" style="color:' + layer.color + '">' + LAYER_ICONS[layer.id] + '</div>' +
+        '<div class="layer-info"><div class="layer-name">' + layer.name + '</div>' +
+        '<div class="layer-brief">' + layer.brief + '</div></div>' +
+        '<span class="layer-tag">' + (layer.constraint ? 'Constraint' : layer.tag) + '</span>' +
+        '</div>';
+
+      // Progress spine
+      spineHtml += '<div class="progress-dot" data-layer="' + i + '" style="background:' + layer.colorHex + '" title="' + layer.name + '"></div>';
+      if (i < LAYERS.length - 1) spineHtml += '<div class="progress-line"></div>';
+    });
+
+    container.innerHTML = html;
+    spine.innerHTML = spineHtml;
+
+    // Bind click events
+    container.querySelectorAll('.layer-node').forEach(function(node) {
+      node.addEventListener('click', function() {
+        selectLayer(parseInt(this.getAttribute('data-layer'), 10));
+      });
+      node.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          selectLayer(parseInt(this.getAttribute('data-layer'), 10));
+        }
+      });
+    });
+    spine.querySelectorAll('.progress-dot').forEach(function(dot) {
+      dot.addEventListener('click', function() {
+        selectLayer(parseInt(this.getAttribute('data-layer'), 10));
+      });
+    });
+  }
+
+  function selectLayer(index) {
+    if (selectedLayerIndex === index) { deselectAll(); return; }
+    selectedLayerIndex = index;
+    var layer = LAYERS[index];
+    var nodes = document.querySelectorAll('.layer-node');
+    var dots = document.querySelectorAll('.progress-dot');
+
+    nodes.forEach(function(n, i) {
+      n.classList.remove('selected', 'dimmed');
+      if (i === index) n.classList.add('selected');
+      else n.classList.add('dimmed');
+    });
+    dots.forEach(function(d, i) {
+      d.classList.toggle('active', i === index);
+    });
+
+    updateDependencyLines(index);
+    openPanel(layer);
+  }
+
+  function deselectAll() {
+    selectedLayerIndex = -1;
+    document.querySelectorAll('.layer-node').forEach(function(n) { n.classList.remove('selected', 'dimmed'); });
+    document.querySelectorAll('.progress-dot').forEach(function(d) { d.classList.remove('active'); });
+    document.querySelectorAll('.dep-line').forEach(function(l) { l.classList.remove('highlighted', 'dimmed'); });
+    closePanel();
+  }
+
+  /* ==========================================================
+     SVG DEPENDENCY LINES
+     ========================================================== */
+  function drawDependencyLines() {
+    var svg = document.getElementById('dep-svg');
+    var container = document.getElementById('stack-container');
+    var nodes = container.querySelectorAll('.layer-node');
+    if (nodes.length < 2) return;
+
+    var cr = container.getBoundingClientRect();
+    svg.setAttribute('viewBox', '0 0 ' + cr.width + ' ' + cr.height);
+    svg.style.width = cr.width + 'px';
+    svg.style.height = cr.height + 'px';
+
+    var lines = '';
+
+    // Core stack connections (0-6)
+    for (var i = 0; i < 6 && i < nodes.length - 1; i++) {
+      var fr = nodes[i].getBoundingClientRect();
+      var tr = nodes[i + 1].getBoundingClientRect();
+      var x1 = fr.left - cr.left + fr.width * 0.5;
+      var y1 = fr.top - cr.top + fr.height;
+      var x2 = tr.left - cr.left + tr.width * 0.5;
+      var y2 = tr.top - cr.top;
+      lines += '<line class="dep-line" data-from="' + i + '" data-to="' + (i+1) + '" x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '"/>';
+    }
+
+    // Constraint field pressure lines
+    var constraintTargets = { 7: [3,5,6], 8: [0,3,6], 9: [1,3,6] };
+    for (var c = 7; c < nodes.length; c++) {
+      var cRect = nodes[c].getBoundingClientRect();
+      var cx = cRect.left - cr.left + 10;
+      var cy = cRect.top - cr.top + cRect.height * 0.5;
+      var targets = constraintTargets[c] || [];
+      targets.forEach(function(t) {
+        if (t >= nodes.length) return;
+        var tR = nodes[t].getBoundingClientRect();
+        var tx = tR.left - cr.left + tR.width - 10;
+        var ty = tR.top - cr.top + tR.height * 0.5;
+        lines += '<line class="dep-line" data-from="' + c + '" data-to="' + t + '" x1="' + cx + '" y1="' + cy + '" x2="' + tx + '" y2="' + ty + '" stroke-dasharray="4 4"/>';
+      });
+    }
+
+    svg.innerHTML = lines;
+  }
+
+  function updateDependencyLines(idx) {
+    document.querySelectorAll('.dep-line').forEach(function(line) {
+      var f = parseInt(line.getAttribute('data-from'), 10);
+      var t = parseInt(line.getAttribute('data-to'), 10);
+      line.classList.remove('highlighted', 'dimmed');
+      if (f === idx || t === idx) {
+        line.classList.add('highlighted');
+        line.style.stroke = LAYERS[idx].colorHex;
+      } else {
+        line.classList.add('dimmed');
+      }
+    });
+  }
+
+  /* ==========================================================
+     SIDE KNOWLEDGE PANEL
+     ========================================================== */
+  function openPanel(layer) {
+    var dot = document.getElementById('panel-dot');
+    var name = document.getElementById('panel-name');
+    var content = document.getElementById('panel-content');
+
+    dot.style.background = layer.colorHex;
+    name.textContent = layer.name;
+    name.style.color = layer.colorHex;
+
+    var h = '';
+
+    if (layer.panel.speakers && layer.panel.speakers.length) {
+      h += '<div class="panel-section"><div class="panel-section-label">CS153 Speakers</div><div class="panel-speakers">';
+      layer.panel.speakers.forEach(function(s) {
+        h += '<span class="panel-speaker-badge"><span class="panel-speaker-dot" style="background:' + s.color + '"></span>' + s.name + '</span>';
+      });
+      h += '</div></div>';
+    }
+
+    h += sec('What', layer.panel.what);
+    h += sec('Why It Matters', layer.panel.why);
+
+    if (layer.panel.dataPoints && layer.panel.dataPoints.length) {
+      h += '<div class="panel-section"><div class="panel-section-label">By The Numbers</div><div class="panel-data-grid">';
+      layer.panel.dataPoints.forEach(function(d) {
+        h += '<div class="panel-data-item"><div class="panel-data-value">' + d.value + '</div><div class="panel-data-label">' + d.label + '</div></div>';
+      });
+      h += '</div></div>';
+    }
+
+    if (layer.panel.depends) {
+      h += '<div class="panel-section"><div class="panel-section-label">Depends On</div><div class="panel-deps">';
+      layer.panel.depends.forEach(function(d) { h += '<span class="panel-dep-tag">' + d + '</span>'; });
+      h += '</div></div>';
+    }
+    if (layer.panel.pressure) {
+      h += sec('Pressure On', layer.panel.pressure, true);
+    }
+    h += sec('What Breaks', layer.panel.breaks, true);
+    if (layer.panel.who) h += sec('Who Operates', layer.panel.who, true);
+
+    if (layer.panel.builder) {
+      h += '<div class="panel-section"><div class="panel-callout builder">' +
+        '<span class="panel-callout-label">Builder Implication</span>' +
+        layer.panel.builder + '</div></div>';
+    }
+    if (layer.panel.lab) {
+      h += '<div class="panel-section"><div class="panel-callout lab">' +
+        '<span class="panel-callout-label">Lab Implication</span>' +
+        layer.panel.lab + '</div></div>';
+    }
+
+    if (layer.panel.quotes && layer.panel.quotes.length) {
+      h += '<div class="panel-section"><div class="panel-section-label">From the Lectures</div>';
+      layer.panel.quotes.forEach(function(q) {
+        h += '<div class="panel-quote" style="--layer-color:' + layer.colorHex + '"><div class="panel-quote-text">\u201c' + q.text + '\u201d</div><div class="panel-quote-attr">\u2014 ' + q.attr + '</div></div>';
+      });
+      h += '</div>';
+    }
+
+    content.innerHTML = h;
+    document.getElementById('panel-overlay').classList.add('open');
+    document.getElementById('side-panel').classList.add('open');
+  }
+
+
+  function sec(label, text, dim) {
+    return '<div class="panel-section"><div class="panel-section-label">' + label +
+      '</div><div class="panel-section-text' + (dim ? ' dim' : '') + '">' + text + '</div></div>';
+  }
+
+  function closePanel() {
+    document.getElementById('panel-overlay').classList.remove('open');
+    document.getElementById('side-panel').classList.remove('open');
+  }
+
+  document.getElementById('panel-close').addEventListener('click', deselectAll);
+  document.getElementById('panel-overlay').addEventListener('click', deselectAll);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && selectedLayerIndex >= 0) deselectAll();
+  });
+
+  /* ==========================================================
+     BOTTLENECK SIMULATOR
+     ========================================================== */
+  var SLIDERS = [
+    { id: 'compute', name: 'Compute Budget', low: 'Low', high: 'Massive', value: 50 },
+    { id: 'latency', name: 'Latency Tolerance', low: 'Real-time', high: 'Batch OK', value: 50 },
+    { id: 'modelSize', name: 'Model Size', low: 'Small', high: 'Frontier', value: 50 },
+    { id: 'traffic', name: 'Traffic Demand', low: 'Prototype', high: 'Planet Scale', value: 50 },
+    { id: 'safety', name: 'Safety Requirements', low: 'Minimal', high: 'Maximum', value: 50 },
+    { id: 'regulatory', name: 'Regulatory Pressure', low: 'None', high: 'Heavy', value: 50 },
+    { id: 'capital', name: 'Capital Available', low: 'Bootstrap', high: '$1B+', value: 50 }
+  ];
+
+  var SIM_LAYERS = [
+    { name: 'Energy', color: 'var(--color-energy)', hex: '#f59e0b' },
+    { name: 'Silicon', color: 'var(--color-silicon)', hex: '#8b5cf6' },
+    { name: 'Compute', color: 'var(--color-compute)', hex: '#06b6d4' },
+    { name: 'Training', color: 'var(--color-training)', hex: '#e8e4dc' },
+    { name: 'Model', color: 'var(--color-model)', hex: '#f0ece4' },
+    { name: 'Inference', color: 'var(--color-inference)', hex: '#3b82f6' },
+    { name: 'Applications', color: 'var(--color-application)', hex: '#84cc16' },
+    { name: 'Security', color: 'var(--color-security)', hex: '#ef4444' },
+    { name: 'Economics', color: 'var(--color-economics)', hex: '#94a3b8' },
+    { name: 'Policy', color: 'var(--color-policy)', hex: '#f97316' }
+  ];
+
+  var SIM_EXPLAIN = {
+    Energy: '"50% of data center power is tax" \u2014 Alswaha. Your demands outstrip available power. Sovereign AI is an energy problem before a compute problem. Digital infra cycles 2.8yr, physical 6.3yr.',
+    Silicon: '"HBM is 40% of GPU cost" \u2014 Alswaha. The memory wall is real: 60,000x transistor growth but Von Neumann unchanged. GPU prices rising ($1.73/hr). Multi-vendor strategies matter.',
+    Compute: '"Compute is not yet a fungible commodity" \u2014 Midha. No standard units, no standard pricing. Palantir churns 20K pods/hour. Cursor runs 100M calls/day. Coordination, not raw chips.',
+    Training: '"The data is the most important thing" \u2014 Lample. 6:1 data-to-code engineers on Llama. Chinchilla trap: compute-optimal is NOT deployment-optimal. RL now consumes ~50% of pipeline.',
+    Model: '"Any startup has as much chance" \u2014 Lample on post-training. Autoregressive along data; diffusion orthogonal. Elicitation overhang: latent capabilities await the right prompt.',
+    Inference: '"No one has good reliability" \u2014 Asif. Cursor crashed providers at 30-40M tokens/min. ElevenLabs gets 300ms fused but sacrifices reliability. Design for failure.',
+    Applications: '"90% of companies cannot use a checkpoint" \u2014 Lample. Sell solutions. ElevenLabs: $430M ARR in 36 months. v0: revenue doubled 3x in 20 days. Ship the product.',
+    Security: '"I was charged with obstruction of justice" \u2014 Sullivan. Thorn: 200B files/year. Okta hacked twice. Open-source releases caused CSAM spikes. Safety cascades through all layers.',
+    Economics: '"H100s at $1.73/hr and rising" \u2014 Midha. Anthropic needed $500M (22 intros, 21 rejections). Capture 1/10th of value. Capital efficiency is survival.',
+    Policy: '"US gov accesses data on any US-company server globally" \u2014 Midha. Saudi has no model religion. No big tech in Europe. Open/closed tension unresolved.'
+  };
+
+
+  function renderSimulator() {
+    var stackEl = document.getElementById('sim-stack');
+    var slidersEl = document.getElementById('sim-sliders');
+
+    var sh = '';
+    SIM_LAYERS.forEach(function(l, i) {
+      sh += '<div class="sim-layer" data-sim="' + i + '" style="--layer-color:' + l.color + '">' +
+        '<span class="sim-layer-name">' + l.name + '</span>' +
+        '<div class="sim-layer-bar"><div class="sim-layer-bar-fill" style="background:' + l.color + '"></div></div></div>';
+    });
+    stackEl.innerHTML = sh;
+
+    var sl = '';
+    SLIDERS.forEach(function(s) {
+      sl += '<div class="sim-slider-group"><label><span class="sim-slider-name">' + s.name + '</span>' +
+        '<span class="sim-slider-value" id="sv-' + s.id + '">' + s.value + '%</span></label>' +
+        '<input type="range" min="0" max="100" value="' + s.value + '" id="slider-' + s.id + '" aria-label="' + s.name + '">' +
+        '<div class="sim-slider-range"><span>' + s.low + '</span><span>' + s.high + '</span></div></div>';
+    });
+    slidersEl.innerHTML = sl;
+
+    SLIDERS.forEach(function(s) {
+      document.getElementById('slider-' + s.id).addEventListener('input', function() {
+        s.value = parseInt(this.value, 10);
+        document.getElementById('sv-' + s.id).textContent = s.value + '%';
+        requestAnimationFrame(updateSim);
+      });
+    });
+
+    updateSim();
+  }
+
+  function sv(id) {
+    for (var i = 0; i < SLIDERS.length; i++) {
+      if (SLIDERS[i].id === id) return SLIDERS[i].value / 100;
+    }
+    return 0.5;
+  }
+
+  function clamp01(v) { return Math.min(1, Math.max(0, v)); }
+
+  function updateSim() {
+    var compute = sv('compute'), latency = sv('latency'), model = sv('modelSize');
+    var traffic = sv('traffic'), safety = sv('safety'), reg = sv('regulatory'), capital = sv('capital');
+
+    var stress = [
+      clamp01(model * 0.4 + traffic * 0.3 + (1 - capital) * 0.2 + compute * 0.1),
+      clamp01(model * 0.35 + compute * 0.3 + traffic * 0.2 + reg * 0.15),
+      clamp01(compute * 0.3 + model * 0.25 + traffic * 0.25 + (1 - capital) * 0.2),
+      clamp01(model * 0.4 + compute * 0.25 + (1 - capital) * 0.2 + safety * 0.15),
+      clamp01(model * 0.35 + (1 - latency) * 0.25 + safety * 0.2 + traffic * 0.2),
+      clamp01(traffic * 0.35 + (1 - latency) * 0.3 + model * 0.2 + (1 - capital) * 0.15),
+      clamp01((1 - latency) * 0.25 + traffic * 0.2 + safety * 0.2 + reg * 0.15 + (1 - capital) * 0.2),
+      clamp01(safety * 0.5 + model * 0.2 + traffic * 0.15 + reg * 0.15),
+      clamp01((1 - capital) * 0.4 + traffic * 0.2 + model * 0.2 + compute * 0.2),
+      clamp01(reg * 0.5 + traffic * 0.2 + safety * 0.15 + model * 0.15)
+    ];
+
+    var maxS = 0, bn = 0;
+    stress.forEach(function(s, i) { if (s > maxS) { maxS = s; bn = i; } });
+
+    document.querySelectorAll('.sim-layer').forEach(function(el, i) {
+      var bar = el.querySelector('.sim-layer-bar-fill');
+      bar.style.width = (stress[i] * 100) + '%';
+      el.classList.remove('stressed', 'bottleneck');
+      if (stress[i] > 0.6) el.classList.add('stressed');
+      if (i === bn) el.classList.add('bottleneck');
+    });
+
+    var nm = SIM_LAYERS[bn].name;
+    document.getElementById('sim-bottleneck-name').textContent = nm;
+    document.getElementById('sim-bottleneck-name').style.color = SIM_LAYERS[bn].hex;
+    document.getElementById('sim-bottleneck-explain').textContent = SIM_EXPLAIN[nm];
+  }
+
+
+  /* ==========================================================
+     SPEAKER CONSTELLATION
+     ========================================================== */
+  var SPEAKERS = [
+    { name: 'Anjney Midha', role: 'AMP PBC / Course Instructor', layers: ['Compute', 'Economics', 'Policy'], color: '#06b6d4', semester: 'Spring 2026' },
+    { name: 'Ben Mann', role: 'Co-Founder, Anthropic', layers: ['Training', 'Models', 'Safety'], color: '#8b5cf6', semester: 'Winter 2025' },
+    { name: 'Guillaume Lample', role: 'Co-Founder, Mistral', layers: ['Training', 'Models', 'Applications'], color: '#f97316', semester: 'Winter 2025' },
+    { name: 'Andreas Blattmann', role: 'Co-Founder, Black Forest Labs', layers: ['Training', 'Models', 'Inference'], color: '#84cc16', semester: 'Spring 2026' },
+    { name: 'Sualeh Asif', role: 'CTO & Co-Founder, Cursor', layers: ['Compute', 'Inference', 'Applications'], color: '#3b82f6', semester: 'Winter 2025' },
+    { name: 'Mati Staniszewski', role: 'CEO & Co-Founder, ElevenLabs', layers: ['Models', 'Inference', 'Applications'], color: '#84cc16', semester: 'Spring 2026' },
+    { name: 'Guillermo Rauch', role: 'CEO, Vercel', layers: ['Compute', 'Inference', 'Applications'], color: '#e8e4dc', semester: 'Winter 2025' },
+    { name: 'Steve Huffman', role: 'CEO & Co-Founder, Reddit', layers: ['Compute', 'Applications', 'Policy'], color: '#ef4444', semester: 'Winter 2025' },
+    { name: 'Shyam Sankar', role: 'CTO, Palantir', layers: ['Compute', 'Applications', 'Security'], color: '#06b6d4', semester: 'Winter 2025' },
+    { name: 'Abdullah Alswaha', role: 'Saudi Minister of IT', layers: ['Energy', 'Silicon', 'Policy'], color: '#f59e0b', semester: 'Winter 2025' },
+    { name: 'Joe Sullivan', role: 'ex-CSO, Cloudflare & Uber', layers: ['Security', 'Policy'], color: '#ef4444', semester: 'Winter 2025' },
+    { name: 'Julie Cordua', role: 'CEO, Thorn', layers: ['Security', 'Applications'], color: '#ef4444', semester: 'Winter 2025' },
+    { name: 'Todd McKinnon', role: 'CEO & Founder, Okta', layers: ['Security', 'Compute'], color: '#ef4444', semester: 'Winter 2025' }
+  ];
+
+  function renderConstellation() {
+    var grid = document.getElementById('constellation-grid');
+    if (!grid) return;
+    var h = '';
+    SPEAKERS.forEach(function(s) {
+      h += '<div class="constellation-card">' +
+        '<div class="constellation-card-header">' +
+        '<div class="constellation-card-dot" style="background:' + s.color + '"></div>' +
+        '<div class="constellation-card-name" style="color:' + s.color + '">' + s.name + '</div></div>' +
+        '<div class="constellation-card-role">' + s.role + ' \u00B7 ' + s.semester + '</div>' +
+        '<div class="constellation-card-layers">';
+      s.layers.forEach(function(l) {
+        h += '<span class="constellation-layer-tag">' + l + '</span>';
+      });
+      h += '</div></div>';
+    });
+    grid.innerHTML = h;
+  }
+
+  /* ==========================================================
+     MODULE ROADMAP
+     ========================================================== */
+  function renderRoadmap() {
+    var MODULES = [
+      { n: 1, t: 'Why Frontier AI Is a Systems Problem', c: '--color-compute', cur: true },
+      { n: 2, t: 'Energy, Silicon, and Physical Constraints', c: '--color-energy' },
+      { n: 3, t: 'Compute Infrastructure and Cluster Coordination', c: '--color-compute' },
+      { n: 4, t: 'Training Systems and Model Formation', c: '--color-training' },
+      { n: 5, t: 'Inference, Serving, and Real-Time Economics', c: '--color-inference' },
+      { n: 6, t: 'Applications, Interfaces, and Product Leverage', c: '--color-application' },
+      { n: 7, t: 'Security, Safety, and Deployment Risk', c: '--color-security' },
+      { n: 8, t: 'Capital, Platforms, and Value Capture', c: '--color-economics' },
+      { n: 9, t: 'Policy, Geopolitics, and Constraint Fields', c: '--color-policy' },
+      { n: 10, t: 'Speaker Constellation: Who Solves What Layer', c: '--color-silicon' },
+      { n: 11, t: 'The One-Person Frontier Lab', c: '--color-application' },
+      { n: 12, t: 'Final Synthesis: Where the Next Bottleneck Moves', c: '--color-text' }
+    ];
+
+    var list = document.getElementById('roadmap-list');
+    var h = '';
+    MODULES.forEach(function(m) {
+      var cls = m.cur ? 'current' : 'future';
+      var num = m.n < 10 ? '0' + m.n : '' + m.n;
+      h += '<div class="roadmap-item ' + cls + '">' +
+        '<div class="roadmap-dot" style="background:var(' + m.c + ');--dot-color:var(' + m.c + ');color:var(--color-bg)">' + num + '</div>' +
+        '<span class="roadmap-item-text">' + m.t + '</span>' +
+        (m.cur ? '<span class="roadmap-tag-current">Current</span>' : '') +
+        '</div>';
+    });
+    list.innerHTML = h;
+  }
+
+  /* ==========================================================
+     RESIZE: redraw dependency lines
+     ========================================================== */
+  var resizeTimer;
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(drawDependencyLines, 150);
+  });
+
+  /* ==========================================================
+     INIT
+     ========================================================== */
+  function init() {
+    initBootSequence();
+    renderStack();
+    renderSimulator();
+    renderConstellation();
+    renderRoadmap();
+    requestAnimationFrame(function() { setTimeout(drawDependencyLines, 200); });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+})();
+</script>
+</body>
+</html>
