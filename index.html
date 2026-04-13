@@ -1093,6 +1093,37 @@ input[type="range"]::-moz-range-thumb {
   color: var(--color-text-muted);
   line-height: 1.55;
 }
+.energy-comparisons {
+  margin: 0.75rem 0 0.25rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 165, 0, 0.06);
+  border-left: 3px solid var(--color-energy);
+  border-radius: 0 8px 8px 0;
+}
+.energy-comparisons-title {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--color-energy);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.02em;
+}
+.energy-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.energy-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+.energy-icon {
+  flex-shrink: 0;
+  font-size: 1rem;
+}
 .trace-connector {
   width: 1px;
   height: 12px;
@@ -1590,7 +1621,28 @@ input[type="range"]::-moz-range-thumb {
       <div class="trace-dot" style="background: var(--color-energy); color: var(--color-bg)">1</div>
       <div class="trace-step-content">
         <div class="trace-step-label" style="color: var(--color-energy)">Energy &amp; Power</div>
-        <div class="trace-step-desc">The data center powering that GPU draws from the regional grid. Cooling systems keep the chip at operating temperature. Your single request consumed roughly 0.001-0.01 kWh &mdash; multiplied by millions of daily requests, this is why hyperscalers are signing nuclear power agreements.</div>
+        <div class="trace-step-desc">The data center powering that GPU draws from the regional grid. Cooling systems keep the chip at operating temperature. Your single request consumed roughly <strong>0.001&ndash;0.01 kWh</strong>.</div>
+        <div class="energy-comparisons">
+          <div class="energy-comparisons-title">How much is 0.01 kWh, really?</div>
+          <div class="energy-grid">
+            <div class="energy-item">
+              <span class="energy-icon">&#9889;</span>
+              <span>A <strong>10W LED bulb</strong> running for about <strong>6 minutes</strong></span>
+            </div>
+            <div class="energy-item">
+              <span class="energy-icon">&#128241;</span>
+              <span>Charging your <strong>smartphone</strong> for roughly <strong>30 minutes</strong></span>
+            </div>
+            <div class="energy-item">
+              <span class="energy-icon">&#128269;</span>
+              <span><strong>10&ndash;30&times;</strong> the energy of a single Google search</span>
+            </div>
+            <div class="energy-item">
+              <span class="energy-icon">&#127758;</span>
+              <span>Now multiply by <strong>millions of daily requests</strong> &mdash; this is why hyperscalers are signing nuclear power agreements</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
