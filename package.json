@@ -1,0 +1,13 @@
+{
+  "name": "the-rewrite",
+  "version": "1.0.0",
+  "private": true,
+  "description": "An independent interactive study companion to Stanford CS153.",
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "serve": "python3 -m http.server 4173 --bind 127.0.0.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
