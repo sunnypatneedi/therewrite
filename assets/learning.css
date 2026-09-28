@@ -1,0 +1,128 @@
+/* Learning uses typography and rules; layer colors stay with the layer map. */
+.learning-section { padding-block: 6rem; scroll-margin-top: 0; }
+.learning-section h2 { max-width: 24ch; font-family: var(--font-sans); font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 500; line-height: 1.08; letter-spacing: -.045em; }
+.learning-section h3 { font-family: var(--font-sans); font-size: 1.35rem; font-weight: 550; line-height: 1.3; }
+.learning-section p { max-width: 70ch; }
+.learning-eyebrow { margin-bottom: 1rem; font-family: var(--font-mono); font-size: .66rem; letter-spacing: .14em; line-height: 1.5; color: var(--color-text-muted); }
+.learning-intro { font-size: 1.13rem; line-height: 1.7; margin: 1.5rem 0; color: var(--color-text-muted); }
+.learning-fine { color: var(--color-text-muted); font-size: .78rem; line-height: 1.6; margin-top: .8rem; }
+.learning-fine a { color: inherit; text-underline-offset: 3px; }
+.learning-button, .learning-text-button, .trace-step, .lab-remove { font: inherit; cursor: pointer; }
+.learning-button { border: 1px solid var(--color-text-dim); border-radius: 3px; color: var(--color-text); background: transparent; padding: .7rem 1rem; font-size: .84rem; font-weight: 550; min-height: 44px; text-align: left; transition: background 160ms ease, border-color 160ms ease; }
+.learning-button:hover { border-color: var(--color-text); background: rgba(255,255,255,.045); }
+.learning-primary { background: var(--color-text); color: var(--color-bg); border-color: var(--color-text); }
+.learning-primary:hover { background: #fff; color: #161719; }
+.learning-text-button { border: 0; padding: .55rem 0; background: transparent; color: var(--color-text); font-size: .82rem; text-decoration: underline; text-underline-offset: 4px; min-height: 44px; text-align: left; display: inline-block; }
+.learning-text-button:hover { text-decoration-thickness: 2px; }
+.learning-section :focus-visible, #lab-thread :focus-visible, .detour-dialog :focus-visible { outline: 2px solid var(--color-text); outline-offset: 5px; }
+.diagnostic-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem 1.8rem; margin: 2rem 0; }
+.learning-field { display: flex; flex-direction: column; gap: .5rem; }
+.learning-field-label { font-size: .78rem; color: var(--color-text-muted); }
+.learning-field select { font: inherit; font-size: .86rem; width: 100%; min-height: 44px; color: var(--color-text); background: var(--color-bg-surface); border: 1px solid var(--color-text-dim); padding: .7rem 2rem .7rem .75rem; border-radius: 3px; }
+.learning-question { border: 0; padding: 0; margin: 1.75rem 0 1.25rem; min-width: 0; }
+.learning-question legend { font-size: 1rem; line-height: 1.6; font-weight: 550; margin-bottom: .8rem; }
+.learning-choice { display: flex; align-items: flex-start; gap: .8rem; font-size: .9rem; padding: .65rem .8rem; border-radius: 3px; cursor: pointer; min-height: 44px; }
+.learning-choice:hover { background: rgba(255,255,255,.04); }
+.learning-choice input { margin-top: .3rem; accent-color: var(--color-text); width: 16px; height: 16px; flex-shrink: 0; }
+.path-result:not(:empty) { border-left: 2px solid var(--color-text); padding: .4rem 0 .4rem 1.5rem; margin-top: 2rem; }
+.path-result p { margin: .8rem 0 1rem; color: var(--color-text-muted); font-size: .9rem; }
+.lesson-stake { font-weight: 550; margin: 1.5rem 0; }
+.lesson-primer { padding: 1.2rem 1.4rem; border-left: 2px solid var(--color-text); margin-top: 1.5rem; font-size: .95rem; background: rgba(255,255,255,.025); }
+.lesson-reading { margin: 3rem 0; }
+.lesson-reading p { margin-top: 1rem; font-size: 1rem; line-height: 1.8; color: var(--color-text-muted); }
+.request-trace { margin: 3rem 0; padding-block: 1.75rem; border-block: 1px solid rgba(255,255,255,.15); }
+.trace-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.2rem; margin: 1.5rem 0; }
+.trace-step { padding: .8rem 0; border: 0; border-bottom: 1px solid rgba(255,255,255,.15); background: none; color: var(--color-text-muted); text-align: left; font-size: .78rem; line-height: 1.5; min-height: 58px; }
+.trace-step.is-current { color: var(--color-text); border-bottom: 2px solid var(--color-text); }
+.trace-step:hover { color: var(--color-text); }
+.trace-detail { min-height: 230px; padding: 1.3rem 0 .5rem; }
+.trace-detail h4 { font: 550 1.1rem/1.5 var(--font-sans); margin-bottom: .8rem; }
+.trace-detail p:not(.trace-fact) { font-size: .96rem; line-height: 1.75; color: var(--color-text-muted); }
+.trace-fact { font-family: var(--font-mono); font-size: .65rem; color: var(--color-text-muted); margin-bottom: .8rem; }
+.trace-dependency { border-left: 2px dashed var(--color-text-dim); padding: .3rem 0 .3rem 1.3rem; margin-top: 1.5rem; }
+.trace-dependency strong { font-size: .88rem; }
+.trace-dependency p { font-size: .83rem; color: var(--color-text-muted); margin-top: .4rem; }
+.lesson-pause { margin: 2rem 0; padding: 1.5rem 0; }
+.lesson-pause p:last-child { margin-top: .8rem; color: var(--color-text-muted); }
+.lesson-detours { margin: 2.5rem 0; }
+.lesson-detours h3 { font-size: 1rem; }
+.detour-links { display: flex; flex-wrap: wrap; gap: .3rem 1.4rem; margin-top: .4rem; }
+.lesson-recall { margin-top: 4rem; }
+.recall-question { border-bottom: 1px solid rgba(255,255,255,.15); padding-bottom: 1.5rem; }
+.recall-feedback { margin-top: 1rem; font-size: .88rem; color: var(--color-text-muted); }
+.recall-feedback:empty { display: none; }
+.recall-feedback[data-correct="true"] { color: var(--color-text); }
+.lesson-evidence { padding-block: 1.3rem; font-family: var(--font-mono); font-size: .73rem; color: var(--color-text-muted); }
+.lesson-evidence.is-complete { color: var(--color-text); }
+.lesson-application { margin: 3rem 0; }
+.lesson-application > p:not(.learning-eyebrow) { margin: 1rem 0; color: var(--color-text-muted); }
+.lesson-application .suggested-action { border-left: 2px solid var(--color-text-dim); padding-left: 1.2rem; }
+.lesson-continuity { font-size: .87rem; color: var(--color-text-muted); padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,.15); }
+.lesson-restart { margin-top: 1.5rem; }
+.lesson-restart .learning-fine { margin-top: 0; }
+.detour-dialog { position: fixed; inset: 0; width: min(580px, calc(100vw - 2rem)); max-height: calc(100dvh - 3rem); margin: auto; padding: 2.5rem; border: 1px solid var(--color-text-dim); border-radius: 4px; color: var(--color-text); background: var(--color-bg-surface); overflow-y: auto; box-shadow: 0 30px 100px rgba(0,0,0,.5); }
+.detour-dialog::backdrop { background: rgba(0,0,0,.7); }
+.detour-dialog h2 { font: 550 1.7rem/1.2 var(--font-sans); }
+.detour-dialog > p:not(.learning-eyebrow), .detour-deeper p { margin: 1.25rem 0; font-size: .96rem; line-height: 1.8; color: var(--color-text-muted); }
+.detour-deeper h3 { font: 550 1.1rem/1.4 var(--font-sans); margin-top: 1.2rem; }
+.detour-dialog .detour-return-note { color: var(--color-text); font-size: .85rem; }
+#lab-thread { position: sticky; top: 90px; scroll-margin-top: 0; min-width: 0; }
+.lab-shell { position: static; max-height: calc(100dvh - 110px); overflow: auto; scrollbar-width: thin; }
+.lab-summary { cursor: pointer; padding: .5rem 0 1rem; list-style-position: inside; }
+.lab-summary .learning-eyebrow { display: block; font-size: .6rem; margin-bottom: .4rem; }
+.lab-heading { font: 550 1.5rem/1.4 var(--font-sans); letter-spacing: -.03em; }
+.lab-toggle { display: block; color: var(--color-text-muted); font-size: .7rem; margin-top: .35rem; }
+.lab-body { padding: 0 .4rem 1rem 0; }
+.lab-intro { font-size: .8rem; color: var(--color-text-muted); margin-bottom: 1.4rem; }
+.lab-field { display: block; margin-bottom: 1rem; }
+.lab-field > span { display: block; font-size: .72rem; margin-bottom: .35rem; }
+.lab-field textarea { display: block; width: 100%; padding: .6rem .7rem; resize: vertical; min-height: 64px; max-height: 240px; border: 1px solid rgba(255,255,255,.2); border-radius: 3px; background: rgba(255,255,255,.02); color: var(--color-text); font: .8rem/1.6 var(--font-sans); }
+.lab-field textarea::placeholder { color: var(--color-text-muted); opacity: .8; }
+.lab-field textarea:focus { border-color: var(--color-text); }
+.lab-pins-heading { font: 550 .78rem/1.5 var(--font-sans); margin-top: 1.4rem; }
+.lab-pins { list-style: none; margin: .5rem 0 1.5rem; }
+.lab-pin { border-bottom: 1px solid rgba(255,255,255,.15); padding: .5rem 0; }
+.lab-pin .learning-text-button { padding: 0; min-height: 32px; }
+.lab-pin p { font-size: .73rem; color: var(--color-text-muted); }
+.lab-remove { border: 0; background: none; color: var(--color-text-muted); font-size: .65rem; padding: .4rem 0; min-height: 32px; text-decoration: underline; }
+.lab-export { font-size: .75rem; width: 100%; }
+.lab-body .learning-fine { font-size: .67rem; }
+.module-list { list-style: none; margin-top: 2rem; }
+.module-row { border-top: 1px solid rgba(255,255,255,.15); }
+.module-row:last-child { border-bottom: 1px solid rgba(255,255,255,.15); }
+.module-summary { display: grid; grid-template-columns: 2rem 1fr auto; gap: 1rem; align-items: baseline; padding: 1.25rem 0; cursor: pointer; list-style: none; }
+.module-summary::-webkit-details-marker { display: none; }
+.module-number { font-family: var(--font-mono); color: var(--color-text-muted); font-size: .7rem; }
+.module-title { font-size: .94rem; font-weight: 500; line-height: 1.5; }
+.module-status { font-size: .65rem; color: var(--color-text-muted); white-space: nowrap; }
+.module-status::after { content: ' +'; }
+.module-preview[open] .module-status::after { content: ' −'; }
+.module-detail { padding: 0 0 1.5rem 3rem; }
+.module-detail p { font-size: .87rem; color: var(--color-text-muted); margin: .7rem 0; }
+.module-detail strong { color: var(--color-text); font-weight: 500; }
+.module-detail .learning-text-button { margin-right: 1.2rem; }
+@media (max-width: 800px) {
+  #lab-thread { position: static; }
+  .lab-shell { max-height: none; }
+  .lab-body { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.5rem; }
+  .lab-intro, .lab-pins-heading, .lab-pins, .lab-export, #lab-storage-status { grid-column: 1 / -1; }
+  .lab-body .lab-export { width: auto; justify-self: start; }
+}
+@media (max-width: 600px) {
+  .learning-section { padding-block: 3.5rem; }
+  .diagnostic-fields, .lab-body { grid-template-columns: 1fr; }
+  .diagnostic-fields { gap: 1rem; }
+  .learning-intro { font-size: 1rem; }
+  .trace-controls { gap: 0 .8rem; }
+  .trace-step { font-size: .72rem; }
+  .trace-detail { min-height: 270px; }
+  .module-summary { grid-template-columns: 1.3rem 1fr; gap: .25rem .7rem; }
+  .module-status { grid-column: 2; }
+  .module-detail { padding-left: 2rem; }
+  .detour-dialog { padding: 1.5rem; }
+  .learning-choice { padding-inline: .2rem; }
+}
+@media (prefers-reduced-motion: reduce) { .learning-button { transition: none; } }
+@media print { .lab-shell { position: static; max-height: none; overflow: visible; } .detour-dialog, .diagnostic-form { display: none; } .learning-section { padding-block: 2rem; } }
+
+.lab-summary { position:sticky; top:0; z-index:2; background:var(--color-bg); }
